@@ -1,0 +1,185 @@
+[
+  {
+    "id": "FIT-GILL-MBY-BULK",
+    "p": "gill-os2",
+    "sourceId": "S-MBY-REVIEW",
+    "url": "https://www.mby.com/reviews/gear/gill-os2-offshore-jacket-review-50-years-of-evolution-in-one-rugged-affordable-jacket",
+    "brand": "Gill",
+    "model": "OS2 Offshore Jacket (OS26J), Red",
+    "relevance": "Exact model (2026 OS2 redesign; colour not specified)",
+    "sourceType": "independent review",
+    "areas": [
+      "overall",
+      "layering"
+    ],
+    "garmentSize": null,
+    "wearer": null,
+    "summary": "Reviewer said the loose lining makes the jacket slightly bulkier than some.",
+    "checked": "2026-10-15",
+    "published": "2026-03-05",
+    "fullyReviewed": true,
+    "limitations": "One reviewer; garment size and the reviewer's build are not stated."
+  },
+  {
+    "id": "FIT-GILL-MBY-TALL",
+    "p": "gill-os2",
+    "sourceId": "S-MBY-REVIEW",
+    "url": "https://www.mby.com/reviews/gear/gill-os2-offshore-jacket-review-50-years-of-evolution-in-one-rugged-affordable-jacket",
+    "brand": "Gill",
+    "model": "OS2 Offshore Jacket (OS26J), Red",
+    "relevance": "Exact model (2026 OS2 redesign; colour not specified)",
+    "sourceType": "independent review",
+    "areas": [
+      "torso length"
+    ],
+    "garmentSize": null,
+    "wearer": null,
+    "summary": "Reviewer noted a wide size range that includes Tall sizes.",
+    "checked": "2026-10-15",
+    "published": "2026-03-05",
+    "fullyReviewed": true,
+    "limitations": "Describes size availability, not how any size fits; no garment measurements given."
+  },
+  {
+    "id": "FIT-GILL-MBYBEST-BULK",
+    "p": "gill-os2",
+    "sourceId": "S-MBY-BEST2026",
+    "url": "https://www.mby.com/gear/best-waterproof-boating-jackets-2026-tested-we-got-blasted-with-a-hose-to-find-the-best-138523",
+    "brand": "Gill",
+    "model": "OS2 Offshore Jacket (OS26J), Red",
+    "relevance": "Exact model (2026 OS2)",
+    "sourceType": "independent review",
+    "areas": [
+      "overall"
+    ],
+    "garmentSize": null,
+    "wearer": null,
+    "summary": "Group test found it a bit bulkier than others but cosy.",
+    "checked": "2026-10-15",
+    "published": null,
+    "fullyReviewed": false,
+    "limitations": "Read from a search excerpt only; full article not reviewed. Size and wearer not stated."
+  },
+  {
+    "id": "FIT-GILL-WMC-NOTBULKY",
+    "p": "gill-os2",
+    "sourceId": "S-WM-COMMUNITY",
+    "url": "https://community.westmarine.com/index.php?p=/discussion/728/gill-os2-offshore-system-review",
+    "brand": "Gill",
+    "model": "OS2 Offshore Jacket (OS26J), Red",
+    "relevance": "RELATED MODEL: earlier OS2 generation (thread is several years old; exact year not confirmed)",
+    "sourceType": "community report",
+    "areas": [
+      "overall"
+    ],
+    "garmentSize": null,
+    "wearer": null,
+    "summary": "One forum poster who says they bought it describes a good, non-bulky fit.",
+    "checked": "2026-10-15",
+    "published": null,
+    "fullyReviewed": false,
+    "limitations": "Earlier OS2 generation; self-reported and unverified ownership; one person; search excerpt only; size and build not stated."
+  },
+  {
+    "id": "FIT-GILL-PMY-SLEEVES",
+    "p": "gill-os2",
+    "sourceId": "S-PMY-OS2",
+    "url": "https://powerandmotoryacht.com/blogs/gill-os2-jacket-review/",
+    "brand": "Gill",
+    "model": "OS2 Offshore Jacket (OS26J), Red",
+    "relevance": "RELATED MODEL: earlier OS2 generation (listed at $375 in the article)",
+    "sourceType": "independent review",
+    "areas": [
+      "sleeves"
+    ],
+    "garmentSize": null,
+    "wearer": null,
+    "summary": "One tester found the sleeves slightly long and the collar very high.",
+    "checked": "2026-10-15",
+    "published": null,
+    "fullyReviewed": false,
+    "limitations": "Earlier OS2 generation; one tester; search excerpt only; garment size and the tester's measurements not stated."
+  },
+  {
+    "id": "FIT-GILL-YW-SHAPE",
+    "p": "gill-os2",
+    "sourceId": "S-YW-COASTAL",
+    "url": "https://www.yachtingworld.com/yachts-and-gear/best-coastal-sailing-jackets-guide-143171",
+    "brand": "Gill",
+    "model": "OS2 Offshore Jacket (OS26J), Red",
+    "relevance": "RELATED MODEL: earlier OS2 generation",
+    "sourceType": "independent review",
+    "areas": [
+      "overall"
+    ],
+    "garmentSize": null,
+    "wearer": null,
+    "summary": "Buying guide credited the jacket with good shape and comfort.",
+    "checked": "2026-10-15",
+    "published": null,
+    "fullyReviewed": false,
+    "limitations": "Earlier OS2 generation; search excerpt only; no size or wearer context."
+  },
+  {
+    "id": "FIT-HH-TRUESIZE",
+    "p": "hh-pier4",
+    "sourceId": "S-HH-RATING",
+    "url": "https://www.hellyhansen.com/en_us/pier-jacket-40-34484#writeReview",
+    "brand": "Helly Hansen",
+    "model": "Men's Pier 4.0 Jacket (34484), Alert Red",
+    "relevance": "Exact model (all colours)",
+    "sourceType": "manufacturer claim",
+    "areas": [
+      "overall"
+    ],
+    "garmentSize": null,
+    "wearer": null,
+    "summary": "Helly Hansen's product page summarises customer feedback as fitting true to size.",
+    "checked": "2026-10-15",
+    "published": null,
+    "fullyReviewed": false,
+    "limitations": "Brand-hosted summary of its own customer reviews; individual reviews not read; 'true to size' depends on the brand's own size chart, which is not recorded here."
+  },
+  {
+    "id": "FIT-GILL-SPEC-RELAXED",
+    "p": "gill-os2",
+    "sourceId": null,
+    "url": "https://www.gillmarine.com/products/offshore-sailing-jacket-red",
+    "brand": "Gill",
+    "model": "OS2 Offshore Jacket (OS26J), Red",
+    "relevance": "Exact model (brand product page)",
+    "sourceType": "manufacturer claim",
+    "areas": [
+      "overall",
+      "layering"
+    ],
+    "garmentSize": null,
+    "wearer": null,
+    "summary": "Gill labels the fit as Relaxed on its own fit scale.",
+    "checked": "2026-10-15",
+    "published": null,
+    "fullyReviewed": null,
+    "limitations": "Brand's own fit label; no garment measurements recorded; 'Relaxed' is not defined in centimetres or inches."
+  },
+  {
+    "id": "FIT-MUSTO-SPEC-ARTIC",
+    "p": "musto-br2",
+    "sourceId": null,
+    "url": "https://www.musto.com/en_us/br2-offshore-jkt-20-82084?color=84",
+    "brand": "Musto",
+    "model": "BR2 Offshore Jacket 2.0 (82084), True Red",
+    "relevance": "Exact model (brand product page)",
+    "sourceType": "manufacturer claim",
+    "areas": [
+      "sleeves",
+      "mobility"
+    ],
+    "garmentSize": null,
+    "wearer": null,
+    "summary": "Musto lists articulated sleeves; no fit label is given.",
+    "checked": "2026-10-15",
+    "published": null,
+    "fullyReviewed": null,
+    "limitations": "Design feature claimed by the brand, not a movement test or a measurement."
+  }
+]

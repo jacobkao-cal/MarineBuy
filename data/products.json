@@ -1,0 +1,93 @@
+[
+  {
+    "id": "gill-os2",
+    "brand": "Gill",
+    "name": "OS2 Offshore Jacket (OS26J), Red",
+    "tier": "Offshore",
+    "use": "Offshore sailing (per Gill)",
+    "specSrc": "https://www.gillmarine.com/products/offshore-sailing-jacket-red",
+    "differ": [
+      {
+        "t": "Bulk: Motor Boat & Yachting found the 2026 model a little bulkier than some; a West Marine forum poster (earlier generation) said it fits well without bulk.",
+        "ids": [
+          "S-MBY-REVIEW",
+          "S-WM-COMMUNITY"
+        ]
+      },
+      {
+        "t": "Breathability: a forum poster (earlier generation) called it very breathable; Yachting World's guide (earlier generation) said it trails Gore-Tex kit.",
+        "ids": [
+          "S-WM-COMMUNITY",
+          "S-YW-COASTAL"
+        ]
+      },
+      {
+        "t": "Waterproof test figure: MBY cites 30,000mm, a Marine Superstore listing says tested to 20,000mm, and Gill's page shows both numbers.",
+        "ids": [
+          "S-MBY-REVIEW",
+          "S-MSS-LISTING"
+        ]
+      }
+    ],
+    "spec": {
+      "wp": "Gill scale: 20,000+mm HH band; brand text cites fabric tested to 30,000mm",
+      "br": "Gill scale: 70–80% band",
+      "con": "XPLORE 2-layer, fully taped seams",
+      "shell": "100% nylon face, recycled PU membrane",
+      "hood": "Fully lined hi-vis hood, 3-way adjustment; stowable face guard",
+      "fit": "Relaxed (Gill's fit scale)"
+    }
+  },
+  {
+    "id": "musto-br2",
+    "brand": "Musto",
+    "name": "BR2 Offshore Jacket 2.0 (82084), True Red",
+    "tier": "Offshore",
+    "use": "Offshore sailing (per Musto)",
+    "specSrc": "https://www.musto.com/en_us/br2-offshore-jkt-20-82084?color=84",
+    "spec": {
+      "wp": "30,000mm (Musto claim)",
+      "con": "Ocean Tech Pro standard; layer count not stated",
+      "shell": "100% polyamide",
+      "hood": "Neon hood",
+      "fit": "Articulated sleeves; fit label not provided"
+    }
+  },
+  {
+    "id": "zhik-ofs600",
+    "brand": "Zhik",
+    "name": "OFS600 Offshore Cruising Jacket, Flame Red",
+    "tier": "Coastal",
+    "use": "Cruising, inshore and coastal, occasional offshore",
+    "specSrc": "https://www.yacht.de/en/equipment/clothing/zhik-ofs-series-new-oilskins-for-offshore-operations/",
+    "spec": {
+      "wp": "15,000mm",
+      "br": "15,000 g/m²",
+      "con": "2-layer, PU microporous membrane",
+      "hood": "Not provided"
+    }
+  },
+  {
+    "id": "hh-pier4",
+    "brand": "Helly Hansen",
+    "name": "Men's Pier 4.0 Jacket (34484), Alert Red",
+    "tier": "Coastal",
+    "use": "Coastal / inshore sailing (per HH)",
+    "specSrc": "https://www.hellyhansen.com/en_us/pier-jacket-40-34484?color=301324",
+    "spec": {
+      "con": "HELLY TECH Performance, 2-layer",
+      "shell": "100% polyamide",
+      "hood": "Packable neon hood stows in collar",
+      "fit": "True to size (HH customer feedback summary)"
+    }
+  },
+  {
+    "id": "wm-thirdreef",
+    "brand": "West Marine",
+    "name": "Men's Third Reef Jacket (P021338520), Sail Red",
+    "tier": "Not stated",
+    "use": "Not provided for this exact listing",
+    "specSrc": "",
+    "spec": {}
+  }
+]

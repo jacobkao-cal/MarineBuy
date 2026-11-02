@@ -1,0 +1,25 @@
+{
+  "note": "Removed from the demo on 2026-10-16 at the owner's request. Not loaded by the site. To restore, move these records back into products.json and offers.json.",
+  "product": [
+    {
+      "id": "amz-B0GYR1JLG8",
+      "brand": "Not identified",
+      "name": "Amazon listing B0GYR1JLG8 (unverified)",
+      "tier": "Not stated",
+      "use": "Not provided",
+      "specSrc": "",
+      "spec": {},
+      "note": "Listing could not be read; brand, model and specs are not verified."
+    }
+  ],
+  "offers": [
+    {
+      "p": "amz-B0GYR1JLG8",
+      "ret": "Amazon",
+      "price": null,
+      "chk": null,
+      "url": "https://www.amazon.com/dp/B0GYR1JLG8",
+      "link": "ASIN taken from owner's link; not verified"
+    }
+  ]
+}

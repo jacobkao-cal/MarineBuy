@@ -1,0 +1,36 @@
+{
+  "CHECKED": "2026-10-15",
+  "RIGHTS": "Rights unconfirmed: supplied by site owner from the retailer/brand page; no written permission on file.",
+  "SPECS": [
+    [
+      "wp",
+      "Waterproof rating"
+    ],
+    [
+      "br",
+      "Breathability"
+    ],
+    [
+      "con",
+      "Construction"
+    ],
+    [
+      "shell",
+      "Shell fabric"
+    ],
+    [
+      "hood",
+      "Hood"
+    ],
+    [
+      "fit",
+      "Fit"
+    ]
+  ],
+  "AUTH": {
+    "S-MBY-REVIEW": "Hugo Andreae",
+    "S-PMY-OS2": "Shane Scott",
+    "S-WM-COMMUNITY": "Forum member",
+    "S-SAILNET-FOULIES": "Forum member"
+  }
+}

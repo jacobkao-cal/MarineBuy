@@ -1,0 +1,225 @@
+[
+  {
+    "id": "S-MBY-REVIEW",
+    "p": "gill-os2",
+    "plat": "Motor Boat & Yachting",
+    "type": "Independent editorial review",
+    "title": "Gill OS2 Offshore Jacket Review: 50 Years of Evolution in One Rugged, Affordable Jacket (Hugo Andreae)",
+    "url": "https://www.mby.com/reviews/gear/gill-os2-offshore-jacket-review-50-years-of-evolution-in-one-rugged-affordable-jacket",
+    "pub": "2026-03-05",
+    "chk": "2026-10-15",
+    "rel": "Exact model (2026 OS2 redesign; colour not specified)",
+    "sum": "Reviewer liked the pocket layout, fleece-lined collar with tuck-away face guard and structured hood, and says it passed their waterproof tests. Called it a solid performer at a sensible price. Full page read.",
+    "items": [
+      {
+        "kind": "report",
+        "t": "Reviewer praised the pockets (fleece-lined handwarmers, waterproof chest pockets), the fleece collar with tuck-away face guard, a hood stiff enough not to collapse, and a wide size range including Tall; it passed their waterproof tests.",
+        "ev": "Article text and its Pros list."
+      },
+      {
+        "kind": "drawback",
+        "t": "Seam tape looks a little lightweight, there are no reinforcement panels on seat or elbows, and the loose lining makes it slightly bulkier than some.",
+        "ev": "Article text and its Cons list."
+      }
+    ]
+  },
+  {
+    "id": "S-MBY-BEST2026",
+    "p": "gill-os2",
+    "plat": "Motor Boat & Yachting",
+    "type": "Independent editorial review",
+    "title": "Best waterproof boating jackets 2026 tested (hose test)",
+    "url": "https://www.mby.com/gear/best-waterproof-boating-jackets-2026-tested-we-got-blasted-with-a-hose-to-find-the-best-138523",
+    "pub": null,
+    "chk": "2026-10-15",
+    "rel": "Exact model (2026 OS2)",
+    "sum": "Named the OS2 best all-rounder in a group test; found it a bit bulkier but cosy, with a quick-engaging main zip. (Checked via search excerpt; full page not read.)",
+    "items": [
+      {
+        "kind": "report",
+        "t": "Picked as 'Best All-Rounder' in a 2026 group test of boating jackets.",
+        "ev": "Section heading and text in the group test."
+      }
+    ]
+  },
+  {
+    "id": "S-MSS-LISTING",
+    "p": "gill-os2",
+    "plat": "Marine Superstore listing",
+    "type": "Manufacturer content (retailer-hosted)",
+    "title": "Gill OS2 Offshore Jacket 2026 (retailer product text)",
+    "url": "https://www.marinesuperstore.com/uncategorized/gill-os2-jacket",
+    "pub": null,
+    "chk": "2026-10-15",
+    "rel": "Exact model (2026 OS2); repeats brand claims, not a user review",
+    "sum": "Repeats Gill's claims: tested to a 20,000mm water column and a 4-hour Martindale abrasion test; Gill says it interviewed 269 sailors and used 140 platform reviews. (Checked via search excerpt; full page not read.)",
+    "items": []
+  },
+  {
+    "id": "S-WM-COMMUNITY",
+    "p": "gill-os2",
+    "plat": "West Marine Community forum",
+    "type": "Community discussion",
+    "title": "Gill OS2 Offshore System Review (forum thread)",
+    "url": "https://community.westmarine.com/index.php?p=/discussion/728/gill-os2-offshore-system-review",
+    "pub": null,
+    "chk": "2026-10-15",
+    "rel": "RELATED MODEL: earlier OS2 generation (thread is several years old; exact year not confirmed)",
+    "sum": "One poster who says they bought the jacket and bibs reports staying dry and warm through 18 hours of rain on a Gulf Stream crossing and a good, non-bulky fit. A second poster agrees and calls the jacket very breathable. Ownership is self-reported and not verified. (Checked via search excerpt; full page not read.)",
+    "items": [
+      {
+        "kind": "report",
+        "t": "Poster says the jacket and bibs stayed dry and warm through 18 hours of rain and that the fit is not bulky (self-reported; earlier generation).",
+        "ev": "Original post and one reply in the thread."
+      }
+    ]
+  },
+  {
+    "id": "S-PMY-OS2",
+    "p": "gill-os2",
+    "plat": "Power & Motoryacht",
+    "type": "Independent editorial review",
+    "title": "Tested: Gill OS2 Jacket (Shane Scott)",
+    "url": "https://powerandmotoryacht.com/blogs/gill-os2-jacket-review/",
+    "pub": null,
+    "chk": "2026-10-15",
+    "rel": "RELATED MODEL: earlier OS2 generation (listed at $375 in the article)",
+    "sum": "Tester found it comfortable and warm, with slightly long sleeves and a collar that rose past the tip of his nose; said it grew on him. (Checked via search excerpt; full page not read.)",
+    "items": [
+      {
+        "kind": "drawback",
+        "t": "One tester found the sleeves slightly long and the collar very high (earlier generation).",
+        "ev": "Reviewer's description of fit when trying it on."
+      }
+    ]
+  },
+  {
+    "id": "S-YW-COASTAL",
+    "p": "gill-os2",
+    "plat": "Yachting World",
+    "type": "Independent editorial review",
+    "title": "Best coastal sailing jackets buyer's guide",
+    "url": "https://www.yachtingworld.com/yachts-and-gear/best-coastal-sailing-jackets-guide-143171",
+    "pub": null,
+    "chk": "2026-10-15",
+    "rel": "RELATED MODEL: earlier OS2 generation",
+    "sum": "Rated it best coastal jacket on a budget: good shape and comfort, fleece-lined pockets, price around half of some rivals. Cons: breathability and waterproofing not quite at Gore-Tex level. (Checked via search excerpt; full page not read.)",
+    "items": [
+      {
+        "kind": "drawback",
+        "t": "Breathability is not as good as pricier Gore-Tex jackets (earlier generation).",
+        "ev": "'Reasons to avoid' entry in the guide."
+      }
+    ]
+  },
+  {
+    "id": "S-PS-FACEOFF",
+    "p": "gill-os2",
+    "plat": "Practical Sailor",
+    "type": "Independent editorial review",
+    "title": "Men's Foulie Faceoff",
+    "url": "https://www.practical-sailor.com/personal-gear-apparel/mens-foulie-faceoff/",
+    "pub": null,
+    "chk": "2026-10-15",
+    "rel": "RELATED MODEL: earlier OS2 jacket and bibs; test date not captured",
+    "sum": "Tested the OS2 jacket and bibs: called the jacket comfortable and relatively lightweight, rated Good or Excellent in every test category, and a mid-range option for serious offshore sailors. (Checked via search excerpt; full page not read.)",
+    "items": [
+      {
+        "kind": "report",
+        "t": "Rated Good or Excellent in every category of its wind- and water-resistance tests (earlier generation).",
+        "ev": "Article's summary of the OS2 test results."
+      }
+    ]
+  },
+  {
+    "id": "S-SAILNET-FOULIES",
+    "p": "gill-os2",
+    "plat": "SailNet forum",
+    "type": "Community discussion",
+    "title": "Favorite foulies and offshore kits (forum thread)",
+    "url": "https://www.sailnet.com/threads/favorite-foulies-and-offshore-kits.351805/",
+    "pub": null,
+    "chk": "2026-10-15",
+    "rel": "RELATED MODEL: OS2 jacket generation not specified",
+    "sum": "One poster names Gill OS2 jacket and bibs as their current go-to gear after using several brands, and says the jacket often goes on sale around $275. Self-reported. (Checked via search excerpt; full page not read.)",
+    "items": []
+  },
+  {
+    "id": "S-YACHT-OFS600",
+    "p": "zhik-ofs600",
+    "plat": "Editorial (YACHT)",
+    "type": "Independent editorial review",
+    "title": "Zhik OFS series: new oilskins for offshore operations",
+    "url": "https://www.yacht.de/en/equipment/clothing/zhik-ofs-series-new-oilskins-for-offshore-operations/",
+    "pub": "2025-04-08",
+    "chk": "2026-10-15",
+    "rel": "Exact model (OFS600 cruising jacket; colour not specified)",
+    "items": [
+      {
+        "kind": "report",
+        "t": "Positioned as a cheaper compromise to the OFS700, offering good value for coastal sailing and occasional offshore use.",
+        "ev": "Article describes it as a compromise between function and price, good value for coastal and occasional offshore."
+      },
+      {
+        "kind": "drawback",
+        "t": "Offers somewhat less protection than the OFS700 (15,000mm vs 20,000mm+ water column).",
+        "ev": "Article states the OFS600 gives slightly less protection at a 15,000mm water column."
+      }
+    ]
+  },
+  {
+    "id": "S-PMY-THIRDREEF",
+    "p": "wm-thirdreef",
+    "plat": "Editorial (Power & Motoryacht)",
+    "type": "Independent editorial review",
+    "title": "West Marine Third Reef Jacket",
+    "url": "https://powerandmotoryacht.com/gear/west-marine-third-reef-jacket/",
+    "pub": null,
+    "chk": "2026-10-15",
+    "rel": "RELATED MODEL: Third Reef jacket of an unknown generation; may differ from the current listing",
+    "items": [
+      {
+        "kind": "report",
+        "t": "This tester called it the burliest of the jackets they tried, citing the Oxford nylon shell and high collar.",
+        "ev": "Reviewer's own verdict in the article."
+      },
+      {
+        "kind": "drawback",
+        "t": "Hook-and-loop strip on the front storm flap is very loud; chest pockets could be deeper (one reviewer).",
+        "ev": "Reviewer comments on the fastener noise and pocket depth."
+      }
+    ]
+  },
+  {
+    "id": "S-HH-RATING",
+    "p": "hh-pier4",
+    "plat": "Helly Hansen US site",
+    "type": "Manufacturer content",
+    "title": "Men's Pier 4.0 Jacket – customer rating and fit summary",
+    "url": "https://www.hellyhansen.com/en_us/pier-jacket-40-34484#writeReview",
+    "pub": null,
+    "chk": "2026-10-15",
+    "rel": "Exact model (all colours)",
+    "rating": "Site shows 4.9 from 148 ratings (brand-hosted; reviews not read individually)",
+    "items": [
+      {
+        "kind": "report",
+        "t": "HH's page summarises customer feedback as running true to size.",
+        "ev": "Page text: customers say it fits true to size."
+      }
+    ]
+  },
+  {
+    "id": "S-MUSTO-RATING",
+    "p": "musto-br2",
+    "plat": "Musto US site",
+    "type": "Manufacturer content",
+    "title": "Men's BR2 Offshore Jacket 2.0 – customer rating",
+    "url": "https://www.musto.com/en_us/br2-offshore-jkt-20-82084?color=84#writeReview",
+    "pub": null,
+    "chk": "2026-10-15",
+    "rel": "Exact model (all colours)",
+    "rating": "Site shows 4.4 (review count not shown in captured text; reviews not read)",
+    "items": []
+  }
+]

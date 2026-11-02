@@ -1,0 +1,63 @@
+{
+  "WP": {
+    "gill-os2": 20000,
+    "musto-br2": 30000,
+    "zhik-ofs600": 15000
+  },
+  "TONE": {
+    "S-MBY-REVIEW": [
+      4,
+      "mby",
+      1,
+      "Positive; notes light seam tape, no reinforcement panels, slightly bulky"
+    ],
+    "S-MBY-BEST2026": [
+      4.5,
+      "mby",
+      1,
+      "Named best all-rounder in a group test"
+    ],
+    "S-WM-COMMUNITY": [
+      4.5,
+      "wmc",
+      0.6,
+      "Very positive self-reported use"
+    ],
+    "S-PMY-OS2": [
+      3.5,
+      "pmy",
+      1,
+      "Comfortable and warm; fit quirks"
+    ],
+    "S-YW-COASTAL": [
+      4,
+      "yw",
+      1,
+      "Good value; breathability behind Gore-Tex"
+    ],
+    "S-PS-FACEOFF": [
+      4.5,
+      "ps",
+      1,
+      "Good or Excellent in every test category"
+    ],
+    "S-SAILNET-FOULIES": [
+      4,
+      "sn",
+      0.6,
+      "Poster names it as go-to gear"
+    ],
+    "S-YACHT-OFS600": [
+      4,
+      "yacht",
+      1,
+      "Good value for coastal use; less protection than OFS700"
+    ],
+    "S-PMY-THIRDREEF": [
+      4,
+      "pmy2",
+      1,
+      "Called burliest in group; loud fastener, shallow pockets"
+    ]
+  }
+}

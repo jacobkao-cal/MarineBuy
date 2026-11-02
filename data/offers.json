@@ -1,0 +1,42 @@
+[
+  {
+    "p": "gill-os2",
+    "ret": "Gill (brand store)",
+    "price": 395,
+    "chk": "2026-10-15",
+    "url": "https://www.gillmarine.com/products/offshore-sailing-jacket-red",
+    "link": "Page loaded 2026-10-15"
+  },
+  {
+    "p": "musto-br2",
+    "ret": "Musto (brand store)",
+    "price": 430,
+    "chk": "2026-10-15",
+    "url": "https://www.musto.com/en_us/br2-offshore-jkt-20-82084?color=84",
+    "link": "Page loaded 2026-10-15"
+  },
+  {
+    "p": "zhik-ofs600",
+    "ret": "Zhik US",
+    "price": null,
+    "chk": null,
+    "url": "https://zhik.com/us/mens-ofs600-offshore-cruising-jacket-flame-red.html",
+    "link": "Supplied by owner; page needs JavaScript, not machine-verified"
+  },
+  {
+    "p": "hh-pier4",
+    "ret": "Helly Hansen US",
+    "price": 295,
+    "chk": "2026-10-15",
+    "url": "https://www.hellyhansen.com/en_us/pier-jacket-40-34484?color=301324",
+    "link": "Page loaded 2026-10-15"
+  },
+  {
+    "p": "wm-thirdreef",
+    "ret": "West Marine",
+    "price": null,
+    "chk": null,
+    "url": "https://www.westmarine.com/west-marine-men-s-third-reef-jacket-P021338520.html?dwvar_P021338520_color=SAIL%20RED",
+    "link": "Supplied by owner (tracking parameters removed); not machine-verified"
+  }
+]
