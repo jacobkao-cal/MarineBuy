@@ -12,7 +12,7 @@ async function init(){let c;
   const profileId=Accounts.current()?.id||null;Likes.useScope(profileId);Workspace.useProfileScope(profileId,id=>!!P(id));startLikes();render();
 }
 Accounts.configure({onScopeChange:profileId=>{
-  Likes.useScope(profileId);Likes.load(id=>!!P(id));Workspace.useProfileScope(profileId,id=>!!P(id));syncCount();$("#nav-account").textContent=Accounts.navText();
+  Likes.useScope(profileId);Likes.load(id=>!!P(id));Workspace.useProfileScope(profileId,id=>!!P(id));syncCount();$("#nav-account").innerHTML=Accounts.navHtml();
 }});
 // ---- Likes (private, this browser only; state lives in likes.js) ----
 const HEART='<svg class="hrt" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M12 20.5s-7.5-4.6-9.4-9.1C1.3 8.2 3.2 4.5 6.8 4.5c2.1 0 3.6 1.2 5.2 3.1 1.6-1.9 3.1-3.1 5.2-3.1 3.6 0 5.5 3.7 4.2 6.9-1.9 4.5-9.4 9.1-9.4 9.1z"/></svg>';
@@ -146,9 +146,9 @@ function renderAbout(){$("#app").innerHTML=`<h1>How these jackets were selected<
 function tray(s){const n=Likes.count(),sel=Likes.selected(),m=sel.length;
  $("#tray").innerHTML=n&&!["/likes","/compare","/account","/profile","/onboarding"].includes(s.path)?`<div class="tray" role="region" aria-label="My Likes summary">${HEART}<span><strong>${n} liked</strong>${m?` · ${m} selected for comparison`:""}</span><a class="btn" href="#/likes">Open My Likes</a>${m>=2?`<a class="btn p" href="${url({...s,cmp:sel},"/compare")}">Compare selected (${m})</a>`:""}</div>`:""}
 function render(){const s=parse();confirmClear=false;$("#app").classList.remove("workspace-main");if(s.path==="/likes")Likes.ensureSelection();document.querySelector("#q").value=s.q;
- if(["/account","/profile","/onboarding"].includes(s.path))$("#app").innerHTML=Accounts.render(s.path);else if(s.path==="/compare")renderCompare(s);else if(s.path==="/likes")renderLikes(s);else if(s.path.startsWith("/p/"))renderProduct(s,s.path.slice(3));else if(s.path==="/about")renderAbout();else renderList(s);
+ document.body.classList.toggle("auth-mode",["/account","/profile","/onboarding"].includes(s.path)&&!Accounts.current());if(["/account","/profile","/onboarding"].includes(s.path))$("#app").innerHTML=Accounts.render(s.path);else if(s.path==="/compare")renderCompare(s);else if(s.path==="/likes")renderLikes(s);else if(s.path.startsWith("/p/"))renderProduct(s,s.path.slice(3));else if(s.path==="/about")renderAbout();else renderList(s);
  s.path==="/likes"?$("#nav-likes").setAttribute("aria-current","page"):$("#nav-likes").removeAttribute("aria-current");
- $("#nav-account").textContent=Accounts.navText();["/account","/profile","/onboarding"].includes(s.path)?$("#nav-account").setAttribute("aria-current","page"):$("#nav-account").removeAttribute("aria-current");
+ $("#nav-account").innerHTML=Accounts.navHtml();["/account","/profile","/onboarding"].includes(s.path)?$("#nav-account").setAttribute("aria-current","page"):$("#nav-account").removeAttribute("aria-current");
  tray(s);if(pendingFocus){const f=$(pendingFocus)||$("h1");pendingFocus=null;f?.focus()}}
 document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;const d=t.dataset;
  if(Accounts.handleClick(e))return;

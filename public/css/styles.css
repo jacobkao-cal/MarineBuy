@@ -216,3 +216,39 @@ body:has(.workspace-main){background:color-mix(in srgb,var(--sf) 65%,var(--bg))}
 .fit-focus{margin:14px 0 4px;padding:12px;border-radius:12px;background:var(--bg);border:1px dashed color-mix(in srgb,var(--ac) 35%,var(--bd))}
 .fit-focus-q{font-size:12px;font-weight:600;margin:0 0 8px}.fit-focus-q span{font-weight:400;color:var(--mu);font-size:11px}
 .rules-fallback{margin-top:22px;padding-top:14px;border-top:1px solid var(--bd)}.rules-fallback h3{font-size:14px;margin:0}.rules-fallback .rules-caption{margin:4px 0 8px}
+/* Sign-in page (sailboat). Always light, like the design mockup. The site header is hidden here (body.auth-mode). */
+body.auth-mode>header{display:none}body.auth-mode main#app{max-width:none;padding:0}
+.auth-page{--bg:#fff;--tx:#14232e;--mu:#4f5d68;--bd:#cfd8de;--sf:#f4f7f9;--ac:#0b5f86;--acx:#fff;--wn:#8a5a00;color-scheme:light;min-height:100vh;display:flex;flex-direction:column;background:#fff;color:var(--tx)}
+.auth-top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px clamp(16px,6vw,88px);background:#fff;border-bottom:1px solid #e3e8ec}
+.auth-top .logo{font-size:clamp(22px,2.4vw,30px);color:var(--tx)}.auth-top .logo b{color:var(--ac)}
+.auth-back{color:var(--tx);text-decoration:none;font-size:15px;min-height:44px;display:inline-flex;align-items:center;gap:8px}.auth-back:hover{text-decoration:underline}
+.auth-hero{position:relative;flex:1;min-height:620px;display:flex;align-items:center;padding:clamp(24px,5vw,64px) clamp(16px,8vw,130px) 96px;overflow:hidden;isolation:isolate}
+.auth-hero::before{content:"";position:absolute;inset:-48px;background:url(../images/site/sailboat.jpg) left center/700% 100% no-repeat;filter:blur(30px) saturate(1.05);z-index:-2}
+.auth-photo{position:absolute;top:0;right:0;height:100%;aspect-ratio:836/843;max-width:78%;background:url(../images/site/sailboat.jpg) center/cover no-repeat;-webkit-mask-image:linear-gradient(to right,transparent,#000 24%);mask-image:linear-gradient(to right,transparent,#000 24%);z-index:-1}
+.auth-card{width:100%;max-width:500px;border:0;border-radius:12px;padding:clamp(24px,4vw,56px);box-shadow:0 22px 56px rgba(8,40,60,.28)}
+.auth-card .eyebrow{color:var(--ac);font-weight:700;letter-spacing:.14em;font-size:13px}
+.auth-card h1{font-size:clamp(32px,3.6vw,44px);font-weight:800;letter-spacing:-.5px;margin:10px 0 4px}
+.auth-card .account-subtitle{font-size:17px;margin:0 0 22px}
+.auth-card form>label{font-size:16px;margin:0 0 8px}
+.auth-input{position:relative}.auth-input svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--mu);pointer-events:none}
+.auth-card .auth-input input{min-height:58px;padding-left:50px;font-size:17px}
+.auth-submit{min-height:58px;font-size:18px;gap:12px;margin-top:22px}
+.auth-card .account-alert{margin:10px 0 0;color:var(--wn);font-size:14px}.auth-card .account-alert:empty{display:none}
+.auth-switch{margin:22px 0 0;font-size:15px;display:flex;flex-wrap:wrap;align-items:center;gap:6px}.auth-switch .text-button{font-size:15px;color:var(--ac);text-decoration:underline;min-height:44px;padding:0}
+.auth-rule{border:0;border-top:1px solid #dfe5e9;margin:22px 0 14px}
+.auth-guest.account-guest{text-align:left;margin:0;color:var(--ac);font-size:16px;min-height:44px;display:inline-flex;align-items:center}
+.auth-card .device-note{border-top:0;padding-top:0;margin-top:10px;font-size:12px}
+.auth-card .profile-picker{margin:18px 0 0}.picker-label{font-size:13px;color:var(--mu);margin:0 0 2px}
+.auth-tagline{position:absolute;right:clamp(16px,5vw,64px);bottom:clamp(16px,3.5vw,40px);margin:0;color:#fff;font-size:15px;line-height:1.9;text-align:right;text-shadow:0 1px 8px rgba(0,0,0,.5)}
+@media(max-width:760px){.auth-hero{display:block;min-height:0;padding:0 16px 28px;background:#eaf2f8}.auth-hero::before{display:none}
+ .auth-photo{position:relative;display:block;height:220px;max-width:none;aspect-ratio:auto;margin:0 -16px;-webkit-mask-image:none;mask-image:none;background-position:center 62%}
+ .auth-card{margin:-36px auto 0;position:relative}.auth-tagline{position:static;color:var(--tx);text-shadow:none;text-align:center;margin-top:18px}}
+/* Header account button: light yellow; captain icon once a profile is signed in. */
+#nav-account{background:#fde68a;border-color:#efcf62;color:#3a2c00;gap:8px}#nav-account:hover{background:#fcdc6a}
+#nav-account[aria-current=page]{box-shadow:inset 0 0 0 2px #b8901c}.captain-icon{flex:none}
+.account-alert[data-tone=info]{color:var(--mu)}
+/* Height in feet + inches (US units) */
+.height-field{border:0;padding:0;margin:0;min-width:0}.height-field legend{padding:0;font-weight:600;margin-bottom:6px}
+.height-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.height-pair label{display:block;font-weight:400;font-size:14px}
+.field-error{color:var(--lk);font-size:13px;margin:6px 0 0;font-weight:400}.field-error:empty{display:none}
+.onboarding-card input[aria-invalid=true]{border-color:var(--lk);box-shadow:inset 0 0 0 1px var(--lk)}
