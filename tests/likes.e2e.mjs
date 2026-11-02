@@ -416,20 +416,24 @@ try {
   check('onboarding measurements are explicitly body measurements', measurementsSummary.includes('Height 180 cm')&&measurementsSummary.includes('body measurements'), measurementsSummary);
   await click('.onboarding-actions button[type="submit"]'); await wait(300);
   const profileId = await js(`return JSON.parse(localStorage.getItem('marinebuy:local-accounts')).activeId`);
-  check('profile completion opens My profile and does not copy guest Likes by default', await js(`return location.hash==='#/profile'&&document.querySelector('#nav-account').textContent==='My profile'&&document.querySelector('#likes-n').textContent==='0'`));
-  check('My profile shows measurements in the chosen units', await js(`return document.querySelector('#app').textContent.includes('Measurements: Height 180 cm')`));
+  check('profile completion shows a welcome with Explore jackets and Go to My profile; guest Likes not copied by default', await js(`return location.hash==='#/onboarding/done'&&document.activeElement.id==='welcome-h'&&!!document.querySelector('.welcome-actions a[href="#/"]')&&!!document.querySelector('.welcome-actions a[href="#/profile"]')&&document.querySelector('#nav-account').textContent==='My profile'&&document.querySelector('#likes-n').textContent==='0'`));
+  await click('.welcome-actions a[href="#/profile"]'); await wait(200);
+  check('Profile Hub overview keeps measurements behind "View measurements"', await js(`const t=document.querySelector('.hub-main').textContent;return location.hash==='#/profile'&&t.includes('Welcome back, Alex')&&t.includes('3 of 5 body measurements recorded')&&!t.includes('Height 180')&&!!document.querySelector('.hub-card a[href="#/profile/fit"]')`));
+  await open('#/profile/fit', false);
+  check('Size & fit shows saved measurements in the chosen units', await js(`return document.querySelector('.hub-saved-m').textContent.includes('Height 180 cm')`));
   await js(`const d=JSON.parse(localStorage.getItem('marinebuy:local-accounts'));const m=d.profiles[0].onboarding.data.measurements;Object.assign(m,{lengthUnit:'in',weightUnit:'lb',heightCm:69*2.54});localStorage.setItem('marinebuy:local-accounts',JSON.stringify(d))`);
   await send('Page.reload'); await wait(800);
-  check('a height saved earlier as 69 total inches displays as 5′9″ on My profile', await js(`return document.querySelector('#app').textContent.includes('Height 5′9″')`));
-  await click('a[href="#/onboarding?edit=1"]'); await wait(300); await click('[data-account-action="onboarding-back"]'); await click('[data-account-action="onboarding-back"]'); await wait(200);
-  check('edit screen shows the same height as Feet 5 / Inches 9', (await heightUI()) === '5|9');
+  check('a height saved earlier as 69 total inches displays as 5′9″ in the profile summary', await js(`return document.querySelector('.hub-saved-m').textContent.includes('Height 5′9″')`));
+  check('Size & fit edit form shows the same height as Feet 5 / Inches 9', (await heightUI()) === '5|9');
   await setUnit('cm');
   await js(`const e=document.querySelector('[name=height]');e.value='180';e.dispatchEvent(new Event('input',{bubbles:true}))`);
+  await js(`document.querySelector('[data-hub-form=fit]').requestSubmit()`); await wait(250);
+  check('saving Size & fit in cm stores 180 cm and confirms the save', (await stored()).heightCm === 180 && (await stored()).lengthUnit === 'cm' && await js(`return document.querySelector('.hub-flash').textContent==='Size & fit saved.'`));
   await open('#/profile', false);
   check('signed-in header button shows the captain icon', await js(`return !!document.querySelector('#nav-account svg.captain-icon')&&document.querySelector('#nav-account svg').getAttribute('aria-hidden')==='true'&&getComputedStyle(document.querySelector('body>header')).display!=='none'`));
   await open('#/likes', false);
   check('profile workspace does not expose guest Likes or notes', await js(`return document.querySelectorAll('.lk').length===0&&document.querySelector('#likes-n').textContent==='0'`));
-  await open('#/profile', false); await click('[data-account-action="sign-out"]');
+  await open('#/profile', false); await click('.hub-signout');
   await open('#/likes', false);
   const guestRestored = await js(`return {count:document.querySelector('#likes-n').textContent,notes:JSON.parse(localStorage.getItem('marinebuy:workspace')||'{"notes":{}}').notes}`);
   check('sign out restores guest Likes and notes', Number(guestRestored.count)===guestIds.length&&guestRestored.notes?.['gill-os2']===guestNote, guestRestored);
@@ -438,23 +442,23 @@ try {
   check('unknown name is refused with a clear message', await js(`return location.hash==='#/account'&&document.querySelector('.auth-card .account-alert').textContent.includes('No profile with that name')`));
   await js(`document.querySelector('#signin-name').value='  alex ';document.querySelector('[data-account-signin]').requestSubmit()`); await wait(300);
   check('typing the profile name signs in (case and spaces ignored)', await js(`return location.hash==='#/profile'&&document.querySelector('#app').textContent.includes('Alex')&&!!document.querySelector('#nav-account svg.captain-icon')`));
-  await click('[data-account-action="sign-out"]');
+  await click('.hub-signout');
   await open('#/account', false); await click(`[data-account-action="sign-in"][data-profile-id="${profileId}"]`);
   check('returning sign-in selects the saved profile on this device', await js(`return location.hash==='#/profile'&&document.querySelector('#app').textContent.includes('Alex')`));
   await send('Page.reload'); await wait(700);
-  check('active local profile and completed onboarding survive a page refresh', await js(`return document.querySelector('#nav-account').textContent==='My profile'&&document.querySelector('#app').textContent.includes('Onboarding complete')`));
-  await click('#nav-account'); await click('[data-account-action="delete-prompt"]');
-  check('profile deletion requires explicit confirmation', await js(`return !!document.querySelector('[role=alert]')&&!!document.querySelector('[data-account-action=delete-confirm]')`));
-  await click('[data-account-action="delete-cancel"]');
-  check('cancel keeps the profile', await js(`return document.querySelector('#app').textContent.includes('Alex')`));
-  await click('[data-account-action="sign-out"]'); await open('#/account', false);
+  check('active local profile and completed onboarding survive a page refresh (no repeated onboarding)', await js(`return document.querySelector('#nav-account').textContent==='My profile'&&document.querySelector('#hub-h').textContent==='Welcome back, Alex'&&!document.querySelector('[data-onboarding]')`));
+  await open('#/profile/settings', false); await click('[data-hub-action="delete"]');
+  check('profile deletion requires explicit confirmation in a modal dialog that lists what is removed', await js(`const d=document.querySelector('#hub-dialog');return d.open&&d.matches(':modal')&&d.textContent.includes('body measurements')&&d.textContent.includes('other profiles on this device are not affected')&&document.activeElement.dataset.dialog==='cancel'`));
+  await click('#hub-dialog [data-dialog="cancel"]');
+  check('cancel keeps the profile and returns focus to Delete', await js(`return !document.querySelector('#hub-dialog').open&&document.querySelector('#app').textContent.includes('Alex')&&document.activeElement.dataset.hubAction==='delete'`));
+  await click('.hub-signout'); await open('#/account', false);
   await click('[data-account-action="create-mode"]');
   await js(`document.querySelector('#account-name').value='Casey';document.querySelector('#account-name').dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('[name=importGuest]').checked=true`);
   await click('[data-account-create] button[type="submit"]'); await wait(250);
   const copiedId = await js(`return JSON.parse(localStorage.getItem('marinebuy:local-accounts')).activeId`);
   const copiedResearch = await js(`return {count:document.querySelector('#likes-n').textContent,notes:JSON.parse(localStorage.getItem('marinebuy:workspace:'+${JSON.stringify(copiedId)})||'{"notes":{}}').notes}`);
   check('guest research is copied only after the explicit import choice', Number(copiedResearch.count)===guestIds.length&&copiedResearch.notes?.['gill-os2']===guestNote, copiedResearch);
-  await open('#/profile', false); await click('[data-account-action="delete-prompt"]'); await click('[data-account-action="delete-confirm"]');
+  await open('#/profile/settings', false); await click('[data-hub-action="delete"]'); await click('#hub-dialog [data-dialog="ok"]');
   check('confirmed deletion clears only that profile and restores guest data', await js(`return localStorage.getItem('marinebuy:likes:'+${JSON.stringify(copiedId)})===null&&Number(document.querySelector('#likes-n').textContent)===${guestIds.length}`));
   await open('#/account', false);
   check('deleting one profile preserves other saved profiles', await js(`return document.querySelectorAll('[data-account-action=sign-in]').length===1&&document.querySelector('#app').textContent.includes('Alex')`));
@@ -475,6 +479,160 @@ try {
   await click('[data-priority="price"]');
   check('blocked storage still supports recommendations and truthful persistence status', await js(`return document.querySelector('#recommendations').textContent.includes('$35.00')&&document.querySelector('.saved-locally').textContent.includes('Storage unavailable')`));
   await send('Page.removeScriptToEvaluateOnNewDocument',{identifier:denied.identifier});
+
+  // 19. Profile Hub, section editing, My gear and privacy (temporary test profiles only)
+  await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
+  await open('#/', true);
+  const acct = () => js(`return JSON.parse(localStorage.getItem('marinebuy:local-accounts'))`);
+  const prof = async (name) => (await acct()).profiles.find((p) => p.displayName === name);
+  // A profile saved by the previous version (same v1 schema) loads unchanged
+  await js(`localStorage.setItem('marinebuy:local-accounts',JSON.stringify({v:1,activeId:'p-legacy-1',profiles:[{id:'p-legacy-1',displayName:'Legacy Sailor',createdAt:'2026-10-20T10:00:00.000Z',onboarding:{step:4,complete:true,data:{activities:['offshore'],activityOther:'',fit:{category:'womens',usualSize:'M',sizeSystem:'US',referenceModel:''},measurements:{lengthUnit:'in',weightUnit:'lb',unitsChosen:true,heightCm:175.26,weightKg:null,chestCm:null,waistCm:null,hipsCm:null},challenges:['hips'],fitNotes:'',priorities:['price'],preferredFit:'regular'}}}]}));localStorage.setItem('marinebuy:workspace:p-legacy-1',JSON.stringify({v:1,priorities:['price'],fitFocus:[],notes:{}}))`);
+  await open('#/profile', true);
+  check('existing profile from the previous version loads into the Profile Hub with its saved values', await js(`const t=document.querySelector('.hub-main').textContent;return document.querySelector('#hub-h').textContent==='Welcome back, Legacy Sailor'&&t.includes('Offshore passages')&&t.includes("Women's · Usual size M (US) · Regular fit")&&t.includes('1 of 5 body measurements recorded')&&t.includes('Lower price')&&document.querySelector('.hub-avatar').textContent==='LS'`));
+  check('sidebar lists every section and Sign out; Overview is current', await js(`return [...document.querySelectorAll('.hub-nav a')].map(a=>a.textContent.trim()).join('|')==='Overview|My sailing|Size & fit|My preferences|My Likes|My gear|Settings'&&document.querySelector('.hub-nav a[aria-current=page]').textContent.trim()==='Overview'&&!!document.querySelector('.hub-signout')`));
+  check('overview banner is decorative, with Explore jackets; every card has a working action', await js(`const i=document.querySelector('.hub-banner img');return i.getAttribute('alt')===''&&document.querySelector('.hub-banner a').getAttribute('href')==='#/'&&[...document.querySelectorAll('.hub-card')].length===5&&[...document.querySelectorAll('.hub-card-a a')].every(a=>['#/','#/likes'].includes(a.getAttribute('href'))||a.getAttribute('href').startsWith('#/profile'))`));
+  await js(`await Promise.all([...document.querySelectorAll('.hub-banner img')].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})))`);
+  check('banner photo loads', await js(`return document.querySelector('.hub-banner img').naturalWidth>0`));
+  // Section navigation, focus and back/forward
+  await click('.hub-nav a[href="#/profile/sailing"]'); await wait(200);
+  check('sidebar navigation opens My sailing and moves focus to its heading', await js(`return location.hash==='#/profile/sailing'&&document.activeElement.id==='hub-h'&&document.querySelector('.hub-nav a[aria-current]').textContent.trim()==='My sailing'`));
+  await js(`history.back()`); await wait(300);
+  check('browser Back returns to the overview', await js(`return location.hash==='#/profile'&&document.querySelector('#hub-h').textContent.startsWith('Welcome back')`));
+  await js(`history.forward()`); await wait(300);
+  check('browser Forward returns to My sailing', await js(`return location.hash==='#/profile/sailing'&&!!document.querySelector('[data-hub-form=sailing]')`));
+  // Edit, cancel, save, refresh
+  await js(`document.querySelector('input[name=activities][value=cruising]').click()`);
+  await click('[data-hub-form=sailing] [data-hub-action=cancel]'); await wait(150);
+  check('Cancel discards the change and says so', await js(`return !document.querySelector('input[name=activities][value=cruising]').checked&&document.querySelector('.hub-flash').textContent==='Changes discarded.'`) && JSON.stringify((await prof('Legacy Sailor')).onboarding.data.activities) === '["offshore"]');
+  await js(`document.querySelector('input[name=activities][value=cruising]').click()`);
+  await click('.hub-nav a[href="#/profile/fit"]'); await wait(150);
+  check('leaving with unsaved changes asks first (modal dialog) and keeps the page', await js(`return document.querySelector('#hub-dialog').open&&location.hash==='#/profile/sailing'&&document.querySelector('input[name=activities][value=cruising]').checked`));
+  await key('Escape', 'Escape', 27);
+  check('Escape keeps editing and returns focus to the link', await js(`return !document.querySelector('#hub-dialog').open&&document.activeElement.getAttribute('href')==='#/profile/fit'`));
+  await js(`history.back()`); await wait(300);
+  check('browser Back with unsaved changes also asks, and keeps the address', await js(`return document.querySelector('#hub-dialog').open&&location.hash==='#/profile/sailing'`));
+  await click('#hub-dialog [data-dialog="cancel"]');
+  await js(`document.querySelector('[data-hub-form=sailing]').requestSubmit()`); await wait(200);
+  check('Save stores the section and confirms it accessibly', JSON.stringify((await prof('Legacy Sailor')).onboarding.data.activities) === '["offshore","cruising"]' && await js(`return document.querySelector('.hub-flash').textContent==='My sailing saved.'`));
+  await wait(150); check('save confirmation is announced in the live region', /My sailing saved/.test(await js(`return document.querySelector('#live').textContent`)));
+  await send('Page.reload'); await wait(800);
+  check('saved section survives a refresh', await js(`return document.querySelector('input[name=activities][value=cruising]').checked&&document.querySelector('input[name=activities][value=offshore]').checked`));
+  // Size & fit: height in ft/in, validation, unit switching without drift, cancel
+  await click('.hub-nav a[href="#/profile/fit"]'); await wait(200);
+  check('Size & fit shows the saved height as 5′9″ and Feet 5 / Inches 9', (await heightUI()) === '5|9' && await js(`return document.querySelector('.hub-saved-m').textContent.includes('Height 5′9″')`));
+  for (let k = 0; k < 3; k++) { await setUnit('cm'); await setUnit('in'); }
+  check('switching units repeatedly (unsaved) keeps 5 ft 9 in', (await heightUI()) === '5|9' && (await prof('Legacy Sailor')).onboarding.data.measurements.heightCm === 175.26);
+  await typeHeight('6', '0'); await js(`const e=document.querySelector('[name=chest]');e.value='40';e.dispatchEvent(new Event('input',{bubbles:true}))`);
+  await js(`document.querySelector('[data-hub-form=fit]').requestSubmit()`); await wait(200);
+  const fm = (await prof('Legacy Sailor')).onboarding.data.measurements;
+  check('saving 6 ft 0 in stores 182.88 cm; chest 40 in stores 101.6 cm; other values unchanged', fm.heightCm === 182.88 && fm.chestCm === 101.6 && fm.weightKg === null && await js(`return document.querySelector('.hub-saved-m').textContent.includes('Height 6′0″')&&document.querySelector('.hub-saved-m').textContent.includes('Chest 40 in')`), fm);
+  await js(`const e=document.querySelector('[name=heightIn]');e.value='12';e.dispatchEvent(new Event('input',{bubbles:true}))`);
+  await js(`document.querySelector('[data-hub-form=fit]').requestSubmit()`); await wait(150);
+  check('invalid inches are explained next to the field and not saved', await js(`return document.querySelector('#height-error').textContent.includes('0 to 11')&&document.querySelector('[name=heightIn]').value==='12'&&document.querySelector('[data-hub-form=fit] .account-alert').textContent.startsWith('Height:')`) && (await prof('Legacy Sailor')).onboarding.data.measurements.heightCm === 182.88);
+  await js(`const e=document.querySelector('[name=weight]');e.value='9999';e.dispatchEvent(new Event('input',{bubbles:true}));const h=document.querySelector('[name=heightIn]');h.value='0';h.dispatchEvent(new Event('input',{bubbles:true}))`);
+  await js(`document.querySelector('[data-hub-form=fit]').requestSubmit()`); await wait(150);
+  check('out-of-range weight is explained next to the field and blocks the save', await js(`return document.querySelector('#weight-error').textContent.includes('should be between')&&document.querySelector('[name=weight]').getAttribute('aria-invalid')==='true'`) && (await prof('Legacy Sailor')).onboarding.data.measurements.weightKg === null);
+  await click('[data-hub-form=fit] [data-hub-action=cancel]'); await wait(150);
+  // Preferences: saved profile priorities vs temporary research priorities
+  await click('.hub-nav a[href="#/profile/preferences"]'); await wait(200);
+  for (const x of ['weight', 'weather', 'breathability']) await click(`[data-pick="${x}"]`);
+  check('priority bubbles are capped at three with an explanation', await js(`return document.querySelectorAll('[data-pick][aria-pressed=true]').length===3&&document.querySelector('[data-hub-form=preferences] .account-alert').textContent.includes('three')`));
+  await click('[data-pick="weather"]');
+  await js(`document.querySelector('[data-hub-form=preferences]').requestSubmit()`); await wait(200);
+  const wsKey = 'marinebuy:workspace:p-legacy-1', wsPri = () => js(`return JSON.parse(localStorage.getItem('${wsKey}')).priorities`);
+  check('when research still used the saved priorities, saving updates both', JSON.stringify((await prof('Legacy Sailor')).onboarding.data.priorities) === '["price","weight"]' && JSON.stringify(await wsPri()) === '["price","weight"]');
+  await js(`const w=JSON.parse(localStorage.getItem('${wsKey}'));w.priorities=['breathability'];localStorage.setItem('${wsKey}',JSON.stringify(w))`);
+  await open('#/profile/preferences', true);
+  await click('[data-pick="price"]');
+  await js(`document.querySelector('[data-hub-form=preferences]').requestSubmit()`); await wait(200);
+  check('a temporary research override is not overwritten; an explicit option is offered', JSON.stringify((await prof('Legacy Sailor')).onboarding.data.priorities) === '["weight"]' && JSON.stringify(await wsPri()) === '["breathability"]' && await js(`return !!document.querySelector('[data-hub-action=apply-priorities]')`));
+  await click('[data-hub-action=apply-priorities]'); await wait(150);
+  check('the explicit option applies saved priorities to My Likes research', JSON.stringify(await wsPri()) === '["weight"]');
+  // My Likes card and workspace link
+  await open('#/', false); await click(btn('hh-pier4')); await click(btn('wm-thirdreef'));
+  await open('#/profile', false);
+  check('My Likes card shows the real count and saved-product thumbnails', await js(`const c=[...document.querySelectorAll('.hub-card')].find(c=>c.textContent.includes('My Likes'));return c.textContent.includes('2 saved jackets')&&c.querySelectorAll('.hub-thumbs img').length===2&&c.querySelector('a').getAttribute('href')==='#/likes'`));
+  await click('.hub-card a[href="#/likes"]'); await wait(300);
+  check('Continue researching opens the existing three-panel workspace', await js(`return location.hash==='#/likes'&&!!document.querySelector('#research-workspace')&&document.querySelectorAll('.lk').length===2`));
+  // My gear: "I own this", duplicates, custom items, edit, remove; Likes untouched
+  const likesBefore = JSON.stringify(await js(`return JSON.parse(localStorage.getItem('marinebuy:likes:p-legacy-1')).ids`));
+  await open('#/p/musto-br2', false);
+  const likeBtnBefore = JSON.stringify(await btnState('musto-br2'));
+  await click('a.own'); await wait(250);
+  check('"I own this" opens Add gear prefilled with the product', await js(`return location.hash==='#/profile/gear/new?p=musto-br2'&&document.querySelector('#gear-product').value==='musto-br2'&&document.querySelector('.gear-custom').hidden`));
+  await js(`const e=document.querySelector('#gear-size');e.value='L';e.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('[data-hub-form=gear]').requestSubmit()`); await wait(250);
+  const gear = () => js(`return (JSON.parse(localStorage.getItem('marinebuy:gear:p-legacy-1'))||{items:[]}).items`);
+  check('gear record is saved for this profile, labelled as your own record', (await gear()).length === 1 && (await gear())[0].productId === 'musto-br2' && (await gear())[0].size === 'L' && await js(`return location.hash==='#/profile/gear'&&document.querySelector('.gear-item').textContent.includes('Your own record')`));
+  check('"I own this" does not change Likes', JSON.stringify(await js(`return JSON.parse(localStorage.getItem('marinebuy:likes:p-legacy-1')).ids`)) === likesBefore);
+  await open('#/p/musto-br2', false);
+  check('product page shows the item is in My gear; Like button unchanged', JSON.stringify(await btnState('musto-br2')) === likeBtnBefore && await js(`return document.querySelector('.own-row').textContent.includes('In My gear · size L')`));
+  await click('a.own'); await wait(250);
+  await js(`const e=document.querySelector('#gear-size');e.value=' l ';e.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('[data-hub-form=gear]').requestSubmit()`); await wait(200);
+  check('same item and size is flagged as a possible duplicate and not saved yet', (await gear()).length === 1 && await js(`return !document.querySelector('.gear-dup').hidden&&document.querySelector('.gear-dup').textContent.includes('already have')&&document.querySelector('[data-hub-form=gear] button[type=submit]').textContent==='Save as another item'`));
+  await js(`document.querySelector('[data-hub-form=gear]').requestSubmit()`); await wait(250);
+  check('confirming saves a second, intentional record', (await gear()).length === 2);
+  await open('#/profile/gear/new', false);
+  await js(`const s=document.querySelector('#gear-product');s.value='';s.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('[data-hub-form=gear]').requestSubmit()`); await wait(150);
+  check('a custom item needs a brand and model; errors sit next to the fields', await js(`return document.querySelector('#gear-brand-error').textContent.includes('brand')&&document.querySelector('#gear-model-error').textContent.includes('model')&&document.querySelector('#gear-brand').getAttribute('aria-invalid')==='true'`) && (await gear()).length === 2);
+  await js(`for(const [i,v] of [['gear-brand','Henri Lloyd'],['gear-model','Old smock'],['gear-purchased','2019-05'],['gear-retailer','A local chandlery'],['gear-fit-areas','Tight at the hips']]){const e=document.querySelector('#'+i);e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}))}document.querySelector('input[name=fit][value=tight]').click();document.querySelector('[data-hub-form=gear]').requestSubmit()`); await wait(250);
+  const custom = (await gear()).find((g) => g.brand === 'Henri Lloyd');
+  check('custom item with optional month, retailer, fit and notes is saved', !!custom && custom.productId === null && custom.purchased === '2019-05' && custom.fit === 'tight' && await js(`return document.querySelector('.gear-list').textContent.includes('Got it May 2019 · from A local chandlery')&&document.querySelector('.gear-list').textContent.includes('Fit: Too tight')`));
+  await click(`a[href="#/profile/gear/${custom.id}"]`); await wait(200);
+  await js(`document.querySelector('input[name=fit][value=comfortable]').click();document.querySelector('[data-hub-form=gear]').requestSubmit()`); await wait(250);
+  check('editing gear updates the record in place', (await gear()).length === 3 && (await gear()).find((g) => g.id === custom.id).fit === 'comfortable');
+  await click(`[data-hub-action="gear-remove"][data-id="${custom.id}"]`);
+  check('Remove asks for confirmation first', await js(`return document.querySelector('#hub-dialog').open&&document.querySelector('#hub-dialog').textContent.includes('Henri Lloyd Old smock')`));
+  await click('#hub-dialog [data-dialog="ok"]'); await wait(200);
+  check('removing gear deletes only that record and leaves Likes alone', (await gear()).length === 2 && !(await gear()).some((g) => g.id === custom.id) && JSON.stringify(await js(`return JSON.parse(localStorage.getItem('marinebuy:likes:p-legacy-1')).ids`)) === likesBefore);
+  check('My gear card on the overview reflects the records', await (async () => { await open('#/profile', false); return js(`return [...document.querySelectorAll('.hub-card')].find(c=>c.textContent.includes('My gear')).textContent.includes('2 items recorded')`); })());
+  // Mobile section menu and keyboard
+  await send('Emulation.setDeviceMetricsOverride', { width: 375, height: 800, deviceScaleFactor: 2, mobile: true });
+  await open('#/profile', false);
+  check('375px: compact section menu replaces the sidebar list', await js(`return getComputedStyle(document.querySelector('.hub-menu-btn')).display!=='none'&&getComputedStyle(document.querySelector('#hub-nav')).display==='none'&&document.querySelector('.hub-menu-btn').getAttribute('aria-expanded')==='false'`));
+  await js(`document.querySelector('.hub-menu-btn').focus()`);
+  await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13, text: '\r' }); await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 }); await wait(150);
+  check('Enter opens the menu and moves focus into it', await js(`return document.querySelector('.hub-menu-btn').getAttribute('aria-expanded')==='true'&&getComputedStyle(document.querySelector('#hub-nav')).display!=='none'&&document.querySelector('#hub-nav').contains(document.activeElement)`));
+  await key('Escape', 'Escape', 27);
+  check('Escape closes the menu and returns focus to its button', await js(`return document.querySelector('.hub-menu-btn').getAttribute('aria-expanded')==='false'&&document.activeElement.classList.contains('hub-menu-btn')`));
+  for (const h of ['#/profile', '#/profile/fit', '#/profile/preferences', '#/profile/gear', '#/profile/gear/new', '#/profile/settings', '#/onboarding/done']) {
+    await open(h, false);
+    check(`375px: no horizontal overflow on ${h}`, await js(`return document.documentElement.scrollWidth<=375`), await js(`return document.documentElement.scrollWidth`));
+  }
+  check('375px: hub controls are touch-sized', await js(`return [...document.querySelectorAll('.hub-menu-btn,.hub-form .btn,.hub-form input:not([type=checkbox]):not([type=radio]),.hub-form select')].every(e=>e.getBoundingClientRect().height>=44)`));
+  await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
+  // Profile switching and sign-out privacy
+  await open('#/profile', false); await click('.hub-signout'); await wait(200);
+  await open('#/profile/gear', false);
+  check('signed out: profile pages show sign-in, never the previous profile’s data', await js(`const t=document.body.textContent;return !!document.querySelector('.auth-card')&&!t.includes('Musto BR2 Offshore Jacket 2.0 (82084), True Red · L')&&!t.includes('Legacy Sailor’s')&&!document.querySelector('.hub')`));
+  await open('#/account', false); await click('[data-account-action="create-mode"]');
+  await js(`document.querySelector('#account-name').value='Other Person';document.querySelector('[data-account-create]').requestSubmit()`); await wait(300);
+  await open('#/profile', false);
+  check('a second profile sees none of the first profile’s gear, measurements, Likes or answers', await js(`const t=document.querySelector('.hub-main').textContent;return t.includes('Welcome back, Other Person')&&t.includes('No body measurements recorded')&&t.includes('No saved jackets yet')&&!t.includes('items recorded')&&!t.includes('Offshore passages')`) && Number(await count()) === 0);
+  await open('#/profile/settings', false);
+  await js(`const e=document.querySelector('#hub-name');e.value='';e.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('[data-hub-form=settings]').requestSubmit()`); await wait(150);
+  check('display name cannot be saved blank (error next to the field)', await js(`return document.querySelector('#hub-name-error').textContent.includes('Enter a name')`) && !!(await prof('Other Person')));
+  await js(`const e=document.querySelector('#hub-name');e.value='Other P.';e.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('[data-hub-form=settings]').requestSubmit()`); await wait(150);
+  check('display name edits save and update the sidebar; Settings explains device storage', await js(`return document.querySelector('.hub-user strong').textContent==='Other P.'&&document.querySelector('.hub-main').textContent.includes('Your profile is saved on this device.')`));
+  const otherId = (await prof('Other P.')).id;
+  await js(`localStorage.setItem('marinebuy:gear:${otherId}',JSON.stringify({v:1,items:[{id:'g-test-1',brand:'Test',model:'Shell',size:'S'}]}))`);
+  await click('[data-hub-action="delete"]'); await click('#hub-dialog [data-dialog="ok"]'); await wait(300);
+  check('deleting a profile removes its gear, Likes and notes but not another profile’s', await js(`return localStorage.getItem('marinebuy:gear:${otherId}')===null&&localStorage.getItem('marinebuy:likes:${otherId}')===null`) && (await gear()).length === 2 && !!(await prof('Legacy Sailor')) && !(await prof('Other P.')) && await js(`return location.hash==='#/account'&&document.querySelector('.auth-card .account-alert').textContent.includes('deleted')`));
+  // Guest "I own this" → sign in → prefilled form
+  await open('#/p/gill-os2', false); await click('a.own'); await wait(250);
+  check('guest "I own this" explains that a profile is needed', await js(`return !!document.querySelector('.auth-card')&&document.querySelector('.auth-card .account-alert').textContent.includes('record gear you own')`));
+  await click('[data-account-action="sign-in"][data-profile-id="p-legacy-1"]'); await wait(300);
+  check('after sign-in the visitor returns to the prefilled Add gear form', await js(`return location.hash==='#/profile/gear/new?p=gill-os2'&&document.querySelector('#gear-product').value==='gill-os2'`));
+  // Malformed gear storage is handled safely
+  await js(`localStorage.setItem('marinebuy:gear:p-legacy-1','{oops')`);
+  await open('#/profile/gear', true);
+  check('malformed gear storage shows an empty list instead of failing', await js(`return document.querySelector('#hub-h').textContent==='My gear'&&!!document.querySelector('.hub-main .empty')`));
+  // Unavailable storage: no false "saved"
+  const blocked = await send('Page.addScriptToEvaluateOnNewDocument', { source: `(()=>{const r=localStorage;const real=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(String(k).startsWith('marinebuy:local-accounts')||String(k).startsWith('marinebuy:gear'))throw new Error('quota');return real.call(this,k,v)}})()` });
+  await open('#/profile/sailing', true);
+  await js(`document.querySelector('input[name=activities][value=racing]').click();document.querySelector('[data-hub-form=sailing]').requestSubmit()`); await wait(200);
+  check('a failed write is reported as not saved', await js(`return document.querySelector('.hub-flash').dataset.tone==='error'&&document.querySelector('.hub-flash').textContent.includes('could not be saved')`));
+  await send('Page.removeScriptToEvaluateOnNewDocument', { identifier: blocked.identifier });
+  await send('Emulation.clearDeviceMetricsOverride');
 } catch (e) { fail++; console.log('FAIL  (exception)', e.message); }
 finally { ws?.close(); chrome.kill(); await wait(300); rmSync(profile, { recursive: true, force: true }); }
 console.log(`\n${pass} passed, ${fail} failed`);

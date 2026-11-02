@@ -3,12 +3,14 @@ import { computeScore } from './score.js';
 import * as Likes from './likes.js';
 import * as Workspace from './workspace.js';
 import * as Accounts from './accounts.js';
+import * as Hub from './profile-hub.js';
+import * as Gear from './gear.js';
 let PRODUCTS=[],OFFERS=[],IMAGES=[],SOURCES=[],VIDEOS=[],WP={},TONE={},SPECS=[],AUTH={},RIGHTS='',CHECKED='';
 const score=id=>computeScore(id,{SOURCES,WP,TONE});
 async function init(){let c;
   try{const r=await fetch(new URL('data/catalog.json',document.baseURI));if(!r.ok)throw new Error(`Catalog request failed (${r.status})`);c=await r.json()}
   catch(e){document.querySelector('#app').innerHTML='<div class="empty">Could not load jacket research. Try refreshing the page.</div>';return}
-  ({products:PRODUCTS,offers:OFFERS,images:IMAGES,sources:SOURCES,videos:VIDEOS}=c);({WP,TONE}=c.scoring);({SPECS,AUTH,RIGHTS,CHECKED}=c.meta);
+  ({products:PRODUCTS,offers:OFFERS,images:IMAGES,sources:SOURCES,videos:VIDEOS}=c);({WP,TONE}=c.scoring);({SPECS,AUTH,RIGHTS,CHECKED}=c.meta);Hub.configure({catalog:()=>({products:PRODUCTS,images:IMAGES})});
   const profileId=Accounts.current()?.id||null;Likes.useScope(profileId);Workspace.useProfileScope(profileId,id=>!!P(id));startLikes();render();
 }
 Accounts.configure({onScopeChange:profileId=>{
@@ -131,9 +133,12 @@ function srcBlock(id){const S=SOURCES.filter(x=>x.p===id),it=k=>S.flatMap(x=>x.i
  `<h2>Reviews &amp; discussions (${S.length})</h2><p class="mu">Real, linked sources only. Each is one voice, not a consensus, and sources marked 'related model' may describe an earlier version. Retailer star ratings are never blended into a score. No Reddit thread has been verified for this model yet.</p>${S.length?[...S].sort((a,b)=>a.rel.startsWith("RELATED")-b.rel.startsWith("RELATED")).map(x=>`<div class="src"><strong>${esc(x.title)}</strong><br><span class="tag">${esc(x.type)}</span> <span class="tag">${esc(x.plat)}</span>${x.sum?`<p style="margin:6px 0">${esc(x.sum)}</p>`:"<br>"}<span class="mu">ID ${x.id} · Published ${fmtD(x.pub)} · Checked ${fmtD(x.chk)}</span><br><span class="${x.rel.startsWith("RELATED")?"warn":"mu"}">Relevance: ${esc(x.rel)}</span>${x.rating?`<br><span class="mu">${esc(x.rating)}. Shown as reported; not combined into any score.</span>`:""}<br><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">Open original</a></div>`).join(""):'<div class="empty">No Amazon/retailer reviews, Reddit threads or forum posts verified for this model yet. Supply URLs to add them.</div>'}`+
  `<h2>YouTube reviews</h2>${VIDEOS.filter(v=>v.p===id).map(v=>`<div class="src"><a href="${esc(v.url)}" target="_blank" rel="noopener noreferrer">${esc(v.title)}</a> <span class="mu">${esc(v.channel)}</span></div>`).join("")||'<div class="empty">No verified YouTube review yet. Supply video URLs for this exact model.</div>'}`}
 function renderProduct(s,id){const p=P(id);if(!p){$("#app").innerHTML='<div class="empty">Product not found. <a href="#/">Back to list</a></div>';return}const I=imgs(id),i=I[0];
- $("#app").innerHTML=`<p><a href="${url(s,"/")}">← All jackets</a></p><div class="two"><div>${gallery(p,1)}${I.length>1?"":`<p class="mu">${i?`Photo: ${esc(i.by)}. ${RIGHTS}<br>Source: ${esc(i.src)}`:"No photo on file."}</p>`}</div><div><span class="tag">${esc(p.tier)}</span><h1>${esc(p.brand)} ${esc(p.name)}</h1><p class="mu">Intended use: ${esc(p.use)}</p>${p.note?`<p class="warn">${esc(p.note)}</p>`:""}${scoreBox(id)}<div>${priceHtml(id)}</div><p>${likeBtn(id)}</p>
+ $("#app").innerHTML=`<p><a href="${url(s,"/")}">← All jackets</a></p><div class="two"><div>${gallery(p,1)}${I.length>1?"":`<p class="mu">${i?`Photo: ${esc(i.by)}. ${RIGHTS}<br>Source: ${esc(i.src)}`:"No photo on file."}</p>`}</div><div><span class="tag">${esc(p.tier)}</span><h1>${esc(p.brand)} ${esc(p.name)}</h1><p class="mu">Intended use: ${esc(p.use)}</p>${p.note?`<p class="warn">${esc(p.note)}</p>`:""}${scoreBox(id)}<div>${priceHtml(id)}</div><p class="own-row">${likeBtn(id)}${ownBtn(id)}</p>
  <h2>Retailer offers</h2><div class="scroll"><table><tr><th>Retailer</th><th>Price</th><th>Last checked</th><th>Link status</th><th></th></tr>${offer(id).map(o=>`<tr><td>${esc(o.ret)}</td><td>${o.price!=null?"$"+o.price:"Check price at retailer"}</td><td>${fmtD(o.chk)}</td><td class="mu">${esc(o.link)}</td><td><a class="btn p" href="${esc(o.url)}" target="_blank" rel="noopener noreferrer">Buy Now<span class="vh"> at ${esc(o.ret)} (opens in a new tab)</span></a></td></tr>`).join("")}</table></div>
  <h2>Manufacturer specifications</h2><table>${SPECS.map(([k,l])=>`<tr><th scope="row">${l}</th><td>${esc(p.spec[k]||"Not provided")}</td></tr>`).join("")}</table><p class="mu">Source: ${p.specSrc?`<a href="${esc(p.specSrc)}" target="_blank" rel="noopener noreferrer">${esc(p.specSrc)}</a>`:"none verified"}</p></div></div>${srcBlock2(id)}`}
+// "I own this" opens Add gear prefilled with this product. It never changes Likes, and retailer clicks are never treated as purchases.
+function ownBtn(id){const g=Accounts.current()?Gear.list().filter(x=>x.productId===id):[];
+ return`<a class="btn own" href="#/profile/gear/new?p=${encodeURIComponent(id)}">I own this<span class="vh">: ${esc(pname(P(id)))}</span></a>${g.length?` <span class="mu">In <a href="#/profile/gear">My gear</a>${g.map(x=>x.size?` · size ${esc(x.size)}`:"").join("")}</span>`:""}`}
 function renderCompare(s){const L=s.cmp.map(P),back=`<p><a href="#/likes">← My Likes</a> · <a href="${url(s,"/")}">All jackets</a></p>`;
  if(L.length<2){$("#app").innerHTML=back+`<h1 id="cmp-h" tabindex="-1">Compare jackets</h1><div class="empty">${L.length?`<p>Only <strong>${esc(pname(L[0]))}</strong> is in this comparison. Add at least one more jacket to compare side by side.</p>`:"<p>No jackets are selected for comparison.</p>"}<p>Like jackets to save them, then select 2–4 in My Likes and choose <strong>Compare selected</strong>.</p><a class="btn p" href="#/likes">Go to My Likes (${Likes.count()})</a> <a class="btn" href="${url(s,"/")}">Browse jackets</a></div>`;return}
  const row=(l,f)=>`<tr><th scope="row">${l}</th>${L.map(p=>`<td>${f(p)}</td>`).join("")}</tr>`;
@@ -144,14 +149,14 @@ function renderCompare(s){const L=s.cmp.map(P),back=`<p><a href="#/likes">← My
 function renderAbout(){$("#app").innerHTML=`<h1>How these jackets were selected</h1><p>The ${PRODUCTS.length} products are the owner's own shortlist for this prototype. This is not a market survey and does not cover all brands or models.</p><ul><li>Prices appear only where they were read from the retailer page on the stated date; otherwise “Check price at retailer”.</li><li>Missing specifications read “Not provided”. Gill and Musto figures are the brands' own claims on different scales and are not directly comparable.</li><li>The Marine Buy Score blends a spec score and independent feedback using the published formula on each product page. Brand-hosted star ratings are shown separately and excluded from the score. Jackets without enough independent feedback stay unrated.</li><li>Product photos are authorized by the site owner for demo purposes.</li><li>Likes are private: they are saved only in this browser (localStorage), never sent to our server, and never counted publicly. Clearing your browser data removes them.</li></ul>`}
 // Compact Likes tray: hidden on My Likes and Compare, which already show the same controls.
 function tray(s){const n=Likes.count(),sel=Likes.selected(),m=sel.length;
- $("#tray").innerHTML=n&&!["/likes","/compare","/account","/profile","/onboarding"].includes(s.path)?`<div class="tray" role="region" aria-label="My Likes summary">${HEART}<span><strong>${n} liked</strong>${m?` · ${m} selected for comparison`:""}</span><a class="btn" href="#/likes">Open My Likes</a>${m>=2?`<a class="btn p" href="${url({...s,cmp:sel},"/compare")}">Compare selected (${m})</a>`:""}</div>`:""}
+ $("#tray").innerHTML=n&&!["/likes","/compare"].includes(s.path)&&!Accounts.isAccountPath(s.path)?`<div class="tray" role="region" aria-label="My Likes summary">${HEART}<span><strong>${n} liked</strong>${m?` · ${m} selected for comparison`:""}</span><a class="btn" href="#/likes">Open My Likes</a>${m>=2?`<a class="btn p" href="${url({...s,cmp:sel},"/compare")}">Compare selected (${m})</a>`:""}</div>`:""}
 function render(){const s=parse();confirmClear=false;$("#app").classList.remove("workspace-main");if(s.path==="/likes")Likes.ensureSelection();document.querySelector("#q").value=s.q;
- document.body.classList.toggle("auth-mode",["/account","/profile","/onboarding"].includes(s.path)&&!Accounts.current());if(["/account","/profile","/onboarding"].includes(s.path))$("#app").innerHTML=Accounts.render(s.path);else if(s.path==="/compare")renderCompare(s);else if(s.path==="/likes")renderLikes(s);else if(s.path.startsWith("/p/"))renderProduct(s,s.path.slice(3));else if(s.path==="/about")renderAbout();else renderList(s);
+ const acct=Accounts.isAccountPath(s.path);document.body.classList.toggle("auth-mode",acct&&!Accounts.current());document.body.classList.toggle("hub-mode",acct&&!!Accounts.current()&&s.path.startsWith("/profile"));if(acct)$("#app").innerHTML=Accounts.render(s.path);else if(s.path==="/compare")renderCompare(s);else if(s.path==="/likes")renderLikes(s);else if(s.path.startsWith("/p/"))renderProduct(s,s.path.slice(3));else if(s.path==="/about")renderAbout();else renderList(s);
  s.path==="/likes"?$("#nav-likes").setAttribute("aria-current","page"):$("#nav-likes").removeAttribute("aria-current");
- $("#nav-account").innerHTML=Accounts.navHtml();["/account","/profile","/onboarding"].includes(s.path)?$("#nav-account").setAttribute("aria-current","page"):$("#nav-account").removeAttribute("aria-current");
+ $("#nav-account").innerHTML=Accounts.navHtml();Accounts.isAccountPath(s.path)?$("#nav-account").setAttribute("aria-current","page"):$("#nav-account").removeAttribute("aria-current");Hub.afterRender(s.path);
  tray(s);if(pendingFocus){const f=$(pendingFocus)||$("h1");pendingFocus=null;f?.focus()}}
 document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;const d=t.dataset;
- if(Accounts.handleClick(e))return;
+ if(Accounts.handleClick(e)||Hub.handleClick(e))return;
  if(d.gal){const g=t.closest(".gal");return galGo(g,galIdx(g.querySelector(".gal-track"))+ +d.gal)}
  if(d.galGo)return galGo(t.closest(".gal"),+d.galGo);
  if("lbOpen" in d){const g=t.closest(".gal");return openLightbox(g,galIdx(g.querySelector(".gal-track")),t)}
@@ -167,10 +172,10 @@ document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)r
  else if(t.id==="rs"){confirmClear=true;rerenderLikes("#rs-no")}
  else if(t.id==="rs-no"){confirmClear=false;rerenderLikes("#rs")}
  else if(t.id==="rs-yes"){confirmClear=false;pendingFocus="#lk-h";Likes.clearAll();live("My Likes cleared.")}});
-document.addEventListener("change",e=>{Accounts.handleChange(e);const c=e.target;if(!c.dataset?.sel)return;
+document.addEventListener("change",e=>{Accounts.handleChange(e);Hub.handleChange(e);const c=e.target;if(!c.dataset?.sel)return;
  if(!Likes.setSelected(c.dataset.sel,c.checked)){c.checked=false;live(`You can compare up to ${Likes.MAX_CMP} jackets. Unselect one first.`)}});
-document.addEventListener("submit",Accounts.handleSubmit);
-document.addEventListener("input",Accounts.handleInput);
+document.addEventListener("submit",e=>{Accounts.handleSubmit(e);Hub.handleSubmit(e)});
+document.addEventListener("input",e=>{Accounts.handleInput(e);Hub.handleInput(e)});
 $("#sf").addEventListener("submit",e=>{e.preventDefault();go({q:$("#q").value.trim()},"/")});
 Workspace.start();addEventListener("hashchange",render);init();
 window.rvf=rvf;

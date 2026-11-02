@@ -1,24 +1,26 @@
 import * as Likes from './likes.js';
 import * as WorkspaceState from './workspace-state.js';
+import * as Gear from './gear.js';
 
 export const KEY = 'marinebuy:local-accounts';
 const VERSION = 1;
-const ACTIVITIES = [
+export const ACTIVITIES = [
   ['coastal', 'Coastal sailing'], ['offshore', 'Offshore passages'], ['cruising', 'Cruising'],
   ['racing', 'Racing'], ['dinghy', 'Dinghy sailing'], ['other', 'Other']
 ];
-const FIT_CATEGORIES = [['mens', "Men's"], ['womens', "Women's"], ['unisex', 'Unisex'], ['unsure', 'Not sure']];
-const CHALLENGES = [
+export const FIT_CATEGORIES = [['mens', "Men's"], ['womens', "Women's"], ['unisex', 'Unisex'], ['unsure', 'Not sure']];
+export const CHALLENGES = [
   ['chest', 'Chest room'], ['shoulders', 'Shoulders'], ['hips', 'Hips or hem'],
   ['length', 'Sleeve or torso length'], ['layers', 'Room for layers'],
   ['movement', 'Freedom of movement'], ['other', 'Something else'], ['none', 'No particular issue']
 ];
-const PRIORITIES = [
+export const PRIORITIES = [
   ['price', 'Lower price'], ['weight', 'Lighter weight'], ['weather', 'Wet-weather protection'],
   ['breathability', 'Breathability'], ['layers', 'Room for layers'], ['movement', 'Freedom of movement']
 ];
+export const PREFERRED_FIT = [['close', 'Close-fitting'], ['regular', 'Regular'], ['relaxed', 'Relaxed'], ['layered', 'Room for layers']];
 const MEASUREMENT_KEYS = ['heightCm', 'weightKg', 'chestCm', 'waistCm', 'hipsCm'];
-const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+export const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const emptyData = () => ({
   activities: [], activityOther: '',
   fit: { category: '', usualSize: '', sizeSystem: '', referenceModel: '' },
@@ -26,7 +28,7 @@ const emptyData = () => ({
   challenges: [], fitNotes: '', priorities: [], preferredFit: ''
 });
 const freshOnboarding = () => ({ step: 0, complete: false, data: emptyData() });
-let state = { v: VERSION, activeId: null, profiles: [] }, writable = true, createMode = false, deletePrompt = false, onScopeChange = () => {};
+let state = { v: VERSION, activeId: null, profiles: [] }, writable = true, createMode = false, onScopeChange = () => {};
 
 function storage() { try { return globalThis.localStorage ?? null; } catch { return null; } }
 function readState() {
@@ -79,6 +81,7 @@ function readState() {
   }
 }
 state = readState();
+Gear.useScope(state.activeId);
 function persist() {
   try {
     const s = storage();
@@ -97,7 +100,7 @@ export const guestDataCount = () => {
   return { likes, notes, total: likes + notes };
 };
 export function configure(options = {}) { onScopeChange = options.onScopeChange || (() => {}); }
-function scopeChanged() { onScopeChange(active()?.id || null); }
+function scopeChanged() { Gear.useScope(active()?.id || null); onScopeChange(active()?.id || null); }
 function id() {
   const token = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   return `p-${token}`;
@@ -113,7 +116,7 @@ export function signIn(profileId) {
   setActive(profile.id);
   return true;
 }
-export function signOut() { setActive(null); deletePrompt = false; signInMessage = ''; nameMatches = []; }
+export function signOut() { setActive(null); signInMessage = ''; nameMatches = []; }
 export function create(displayName, importGuest = false) {
   const name = String(displayName || '').trim().replace(/\s+/g, ' ');
   if (!name || name.length > 80) return null;
@@ -136,6 +139,20 @@ export function updateOnboarding(patch) {
   persist();
   return true;
 }
+/** Save a patch to the signed-in profile's answers. Returns false if the browser could not store it. */
+export function updateProfileData(patch) {
+  const profile = active();
+  if (!profile) return false;
+  profile.onboarding = { ...profile.onboarding, data: { ...profile.onboarding.data, ...patch } };
+  persist();
+  return writable;
+}
+export function rename(displayName) {
+  const profile = active(), name = String(displayName || '').trim().replace(/\s+/g, ' ');
+  if (!profile || !name || name.length > 80) return { ok: false, saved: false };
+  profile.displayName = name; persist();
+  return { ok: true, saved: writable };
+}
 export function deleteCurrent() {
   const profile = active();
   if (!profile) return false;
@@ -149,9 +166,9 @@ export function deleteCurrent() {
     if (s) {
       s.removeItem(`${Likes.KEY}:${profileId}`);
       s.removeItem(`${WorkspaceState.KEY}:${profileId}`);
+      s.removeItem(`${Gear.KEY}:${profileId}`);
     }
   } catch { removed = false; }
-  deletePrompt = false;
   scopeChanged();
   return removed;
 }
@@ -172,13 +189,20 @@ const PERSON = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="tru
 const ARROW = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 // Captain icon for the header once a profile is signed in (our own drawing, single colour, follows the text colour).
 export const CAPTAIN = '<svg class="captain-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M3.6 7.7C3.6 5.1 7.4 3 12 3s8.4 2.1 8.4 4.7c0 .6-.4 1-1 1H4.6c-.6 0-1-.4-1-1zM12 4.6c-.8 0-1.5.6-1.5 1.3s.7 1.2 1.5 1.2 1.5-.5 1.5-1.2-.7-1.3-1.5-1.3z"/><path fill="currentColor" d="M6.3 9.6h11.4v1.5c0 .4-.3.7-.7.7H7c-.4 0-.7-.3-.7-.7zM7.9 12.6h8.2v.6a4.1 4.1 0 0 1-8.2 0z"/><path fill="currentColor" fill-rule="evenodd" d="M3.4 22c0-3.4 2.4-5.6 5.6-6.2l3 3.6 3-3.6c3.2.6 5.6 2.8 5.6 6.2zM15.2 19.2l1.2 1.3 1.2-1.3v-1l-1.2.9-1.2-.9z"/></svg>';
-let signInMessage = '', nameMatches = [];
+let signInMessage = '', nameMatches = [], returnTo = '';
+// Where a returning profile lands after signing in: the page they were sent from, else the Profile Hub; unfinished setup resumes onboarding.
+// Go to a page; if it is already the current address (e.g. the sign-in page shown at a profile URL), redraw it anyway.
+function navigate(to) {
+  if (location.hash !== to) { location.hash = to; return; }
+  dispatchEvent(new HashChangeEvent('hashchange', { oldURL: location.href, newURL: location.href }));
+}
+function landing(profile) { const to = profile.onboarding.complete ? (returnTo || '#/profile') : '#/onboarding'; returnTo = ''; return to; }
 function profileButton(p) {
   return `<button type="button" class="profile-pick" data-account-action="sign-in" data-profile-id="${esc(p.id)}"><span class="profile-avatar" aria-hidden="true">${esc(p.displayName.trim().slice(0, 1).toUpperCase())}</span><span><strong>${esc(p.displayName)}</strong><small>${p.complete ? 'Profile ready' : 'Setup in progress'}</small></span><span aria-hidden="true">→</span></button>`;
 }
 function signInPage() {
   const profiles = list();
-  if (active()) return profilePage();
+  if (active()) return profilePage('/profile');
   const picker = nameMatches.length ? profiles.filter(p => nameMatches.includes(p.id)) : profiles;
   const form = createMode
     ? `<span class="eyebrow">YOUR PERSONAL RESEARCH SPACE</span>
@@ -207,26 +231,12 @@ function signInPage() {
       ${card(`${form}<hr class="auth-rule"><a class="account-guest auth-guest" href="#/">Continue exploring as a guest</a>${deviceNote()}`, 'account-panel auth-card')}
       <p class="auth-tagline">Your next adventure starts with the right gear.<br>Discover. Compare. Choose your own course.</p></div></div>`;
 }
-function profilePage() {
-  const p = active();
-  if (!p) return signInPage();
-  const d = p.onboarding.data;
-  const progress = p.onboarding.complete ? 'Onboarding complete' : 'Onboarding not complete';
-  return `<div class="profile-page"><div class="profile-heading"><div><span class="eyebrow">LOCAL PROFILE</span><h1>My profile</h1></div><span class="saved-locally">${storageAvailable() ? 'Saved on this device' : 'Storage unavailable · changes last for this visit'}</span></div>
-    ${card(`<h2>${esc(p.displayName)}</h2><p>${progress}</p>${d.activities.length ? `<p><strong>Sailing:</strong> ${esc(d.activities.map(x => ACTIVITIES.find(a => a[0] === x)?.[1] || x).join(', '))}${d.activityOther ? ` · ${esc(d.activityOther)}` : ''}</p>` : ''}
-      ${d.fit.category ? `<p><strong>Fit category:</strong> ${esc(FIT_CATEGORIES.find(x => x[0] === d.fit.category)?.[1] || d.fit.category)}${d.fit.usualSize ? ` · Usual size ${esc(d.fit.usualSize)} ${esc(d.fit.sizeSystem)}` : ''}</p>` : ''}
-      ${d.priorities.length ? `<p><strong>Priorities:</strong> ${esc(d.priorities.map(x => PRIORITIES.find(a => a[0] === x)?.[1] || x).join(', '))}</p>` : ''}
-      ${d.preferredFit ? `<p><strong>Preferred fit:</strong> ${esc(d.preferredFit)}</p>` : ''}
-      ${measurementList(d.measurements).length ? `<p><strong>Measurements:</strong> ${esc(measurementList(d.measurements).join(' · '))}</p>` : ''}
-      <p class="mu">Measurements, if added, are body measurements—not garment measurements.</p>
-      <div class="profile-actions">${p.onboarding.complete ? '<a class="btn p" href="#/onboarding?edit=1">Edit profile</a>' : '<a class="btn p" href="#/onboarding">Continue setup</a>'}
-        <button type="button" class="btn" data-account-action="sign-out">Sign out</button>
-        <button type="button" class="text-button danger-text" data-account-action="delete-prompt">Delete profile…</button></div>
-      ${deletePrompt ? `<div class="delete-confirm" role="alert"><p>Delete <strong>${esc(p.displayName)}</strong> and this profile's saved Likes, notes, measurements, and preferences from this browser? This cannot be undone.</p><button type="button" class="btn danger" data-account-action="delete-confirm">Delete profile and data</button><button type="button" class="btn" data-account-action="delete-cancel">Cancel</button></div>` : ''}`)
-      }${deviceNote()}</div>`;
-}
+// The signed-in Profile Hub lives in profile-hub.js and registers itself here (avoids a circular import).
+let profileRenderer = () => '';
+export function setProfileRenderer(fn) { profileRenderer = fn; }
+const profilePage = (path = '/profile') => profileRenderer(path);
 /** Measurements in the profile's chosen units, e.g. "Height 5′9″ · Weight 165 lb · Chest 40 in". Shared by every profile screen. */
-function measurementList(m) {
+export function measurementList(m) {
   const units = [], lu = m.lengthUnit, wu = m.weightUnit;
   if (m.heightCm != null) units.push(`Height ${formatHeight(m.heightCm, lu)}`);
   if (m.weightKg != null) units.push(`Weight ${shown(m.weightKg, wu)} ${wu}`);
@@ -242,18 +252,18 @@ function summary(data) {
     <p><strong>Fit:</strong> ${esc(FIT_CATEGORIES.find(x => x[0] === data.fit.category)?.[1] || 'Not provided')}${data.fit.usualSize ? ` · ${esc(data.fit.usualSize)} ${esc(data.fit.sizeSystem || '')}` : ''}${data.fit.referenceModel ? ` · Reference: ${esc(data.fit.referenceModel)}` : ''}</p>
     <p><strong>Fit challenges:</strong> ${data.challenges.length ? esc(data.challenges.map(x => CHALLENGES.find(a => a[0] === x)?.[1] || x).join(', ')) : 'Not provided'}${data.fitNotes ? ` · ${esc(data.fitNotes)}` : ''}</p>
     <p><strong>Priorities:</strong> ${choices.length ? esc(choices.join(', ')) : 'Not provided'}</p>
-    <p><strong>Preferred fit:</strong> ${esc(data.preferredFit || 'Not provided')}</p>
+    <p><strong>Preferred fit:</strong> ${esc(PREFERRED_FIT.find(x => x[0] === data.preferredFit)?.[1] || 'Not provided')}</p>
     <p><strong>Measurements:</strong> ${units.length ? esc(units.join(' · ')) : 'Not provided'}${units.length ? ' (body measurements)' : ''}</p>
     <p class="mu">These preferences help organize research. They cannot guarantee that a jacket will fit; verified official size charts are not currently recorded.</p></div>`;
 }
 // Canonical storage is cm / kg; the form shows the chosen system. Ranges are the same physical limits in either unit.
 const RANGES = { height: [100, 230], weight: [30, 250], chest: [50, 220], waist: [40, 220], hips: [50, 230] };
 const LABELS = { height: 'Height', weight: 'Weight', chest: 'Chest', waist: 'Waist', hips: 'Hips' };
-const unitFor = (name, system) => name === 'weight' ? (system === 'metric' ? 'kg' : 'lb') : (system === 'metric' ? 'cm' : 'in');
+export const unitFor = (name, system) => name === 'weight' ? (system === 'metric' ? 'kg' : 'lb') : (system === 'metric' ? 'cm' : 'in');
 const fromCanonical = (n, unit) => unit === 'in' ? n / 2.54 : unit === 'lb' ? n * 2.2046226218 : n;
-const shown = (n, unit) => n == null ? '' : String(Number(fromCanonical(n, unit).toFixed(unit === 'in' || unit === 'lb' ? 1 : 2)));
+export const shown = (n, unit) => n == null ? '' : String(Number(fromCanonical(n, unit).toFixed(unit === 'in' || unit === 'lb' ? 1 : 2)));
 const bound = (name, unit, i) => Number(fromCanonical(RANGES[name][i], unit).toFixed(2));
-function unitInput(name, value, system) {
+export function unitInput(name, value, system) {
   const unit = unitFor(name, system);
   return `<label class="measure-field" for="measure-${name}"><span class="measure-label" data-measure-label="${name}">${LABELS[name]} (${unit})</span><input id="measure-${name}" name="${name}" type="number" step="any" min="${bound(name, unit, 0)}" max="${bound(name, unit, 1)}" value="${value ?? ''}" inputmode="decimal"></label>`;
 }
@@ -286,7 +296,7 @@ export function parseFeetInches(feetRaw, inchesRaw, bad = {}) {
   if (total < HEIGHT_IN[0] || total > HEIGHT_IN[1]) return { error: `Height must be between ${ftIn(Math.floor(HEIGHT_IN[0] / 12), HEIGHT_IN[0] % 12)} and ${ftIn(Math.floor(HEIGHT_IN[1] / 12), HEIGHT_IN[1] % 12)}. Check the feet value.`, field: 'feet' };
   return { cm: Math.round(total * 254) / 100 };
 }
-function heightField(cm, system) {
+export function heightField(cm, system) {
   if (system === 'metric') return `<div data-height-field>${unitInput('height', shown(cm, 'cm'), system)}<p class="field-error" id="height-error"></p></div>`;
   const h = feetInches(cm);
   return `<fieldset class="measure-field height-field" data-height-field><legend><span class="measure-label" data-measure-label="height">Height (ft / in)</span></legend>
@@ -295,7 +305,7 @@ function heightField(cm, system) {
     <p class="field-error" id="height-error"></p></fieldset>`;
 }
 /** Validate the height inputs as typed (nothing is rewritten). Shows the reason inline; returns { cm } or { error }. */
-function checkHeight(form) {
+export function checkHeight(form) {
   const ftEl = form.elements.namedItem('heightFt'), inEl = form.elements.namedItem('heightIn'), cmEl = form.elements.namedItem('height');
   const msg = form.querySelector('#height-error');
   let r;
@@ -311,8 +321,8 @@ function checkHeight(form) {
   return r;
 }
 /** Block Continue/Back/Skip/unit changes while the height entry is invalid, and say why. */
-function heightBlocked(form) {
-  if (Number(form.dataset.step) !== 2) return false;
+export function heightBlocked(form) {
+  if (!form.querySelector('[data-height-field]')) return false;
   const r = checkHeight(form);
   if (!r.error) return false;
   const status = form.querySelector('.account-alert');
@@ -348,9 +358,9 @@ function onboardingPage() {
   }
   if (step === 3) body = `<h2>Any fit challenges?</h2><p>Select all that apply. “No particular issue” excludes the other choices.</p>${checkedOptions(CHALLENGES, data.challenges, 'challenges')}<label for="fit-notes">Anything else to keep in mind (optional)</label><textarea id="fit-notes" name="fitNotes" maxlength="500" rows="3">${esc(data.fitNotes)}</textarea>`;
   if (step === 4) body = `<h2>What matters most?</h2><p>Choose up to three priorities, then your preferred fit.</p>${checkedOptions(PRIORITIES, data.priorities, 'priorities')}
-    <label for="preferred-fit">Preferred fit</label><select id="preferred-fit" name="preferredFit"><option value="">No preference</option>${options([['close','Close'],['regular','Regular'],['relaxed','Relaxed'],['layered','Room for layers']], data.preferredFit)}</select>
+    <label for="preferred-fit">Preferred fit</label><select id="preferred-fit" name="preferredFit"><option value="">Not sure / no preference</option>${options(PREFERRED_FIT, data.preferredFit)}</select>
     ${summary(data)}`;
-  return `<div class="onboarding-page">${card(`<div class="profile-heading"><div><span class="eyebrow">${edit ? 'EDIT YOUR PROFILE' : 'PERSONALIZE YOUR RESEARCH'}</span><h1>${edit ? 'Edit profile' : 'Your sailing profile'}</h1></div><a href="#/profile" class="text-button">Exit setup</a></div>
+  return `<div class="onboarding-page onboarding-split"><figure class="onboarding-art" aria-hidden="true"><img src="images/site/onboarding-grinder-portrait-480.jpg" alt="" width="480" height="639" decoding="async"><figcaption>Lifestyle photo, not a product image</figcaption></figure>${card(`<div class="profile-heading"><div><span class="eyebrow">${edit ? 'EDIT YOUR PROFILE' : 'PERSONALIZE YOUR RESEARCH'}</span><h1>${edit ? 'Edit profile' : 'Your sailing profile'}</h1></div><a href="#/profile" class="text-button">Exit setup</a></div>
       <div class="progress-label"><span>Step ${step + 1} of 5 · ${steps[step]}</span><span>${Math.round((step + 1) * 20)}%</span></div><div class="progress-track" role="progressbar" aria-label="Profile setup progress" aria-valuenow="${step + 1}" aria-valuemin="1" aria-valuemax="5"><span style="width:${(step + 1) * 20}%"></span></div>
       <form data-onboarding data-step="${step}" data-edit="${edit ? 'true' : 'false'}" data-length-unit="${data.measurements.lengthUnit}" data-weight-unit="${data.measurements.weightUnit}">${body}
         <p class="account-alert" role="status" aria-live="polite"></p>
@@ -358,11 +368,29 @@ function onboardingPage() {
           ${step < 4 ? '<button type="button" class="text-button" data-account-action="onboarding-skip">Skip this step</button><button type="submit" class="btn p">Continue</button>' : '<button type="submit" class="btn p">Finish and explore jackets</button>'}</div>
       </form>${deviceNote()}`, 'onboarding-card')}</div>`;
 }
+// Brief welcome after the last onboarding step.
+function welcomePage() {
+  const p = active();
+  if (!p) return signInPage();
+  return `<div class="welcome-page">${card(`<div class="welcome-art"><img src="images/site/welcome-offshore-crew-800.jpg" srcset="images/site/welcome-offshore-crew-800.jpg 800w, images/site/welcome-offshore-crew-1600.jpg 1600w" sizes="(max-width: 760px) 100vw, 720px" alt="" width="1600" height="900" decoding="async"><span class="art-note">Lifestyle photo, not a product image</span></div>
+    <div class="welcome-body"><span class="eyebrow">PROFILE READY</span><h1 id="welcome-h" tabindex="-1">You're all set, ${esc(p.displayName)}</h1>
+    <p>Your sailing and fit answers are saved on this device. You can change any of them from My profile.</p>
+    <div class="welcome-actions"><a class="btn p" href="#/">Explore jackets</a><a class="btn" href="#/profile">Go to My profile</a></div></div>`, 'welcome-card')}</div>`;
+}
 export function render(path) {
   if (path === '/onboarding') return onboardingPage();
-  if (path === '/profile') return profilePage();
+  if (path === '/onboarding/done') return welcomePage();
+  if (path.startsWith('/profile')) {
+    if (active()) return profilePage(path);
+    // "I own this" from a product page: explain, and return to the prefilled Add gear form after sign-in.
+    if (path === '/profile/gear/new') { returnTo = location.hash; signInMessage = 'Sign in or create a profile to record gear you own. My gear is saved with your profile on this device.'; nameMatches = []; }
+    return signInPage();
+  }
   return signInPage();
 }
+export const isAccountPath = path => path === '/account' || path.startsWith('/onboarding') || path.startsWith('/profile');
+/** A one-time message for the sign-in card, e.g. why the visitor was sent here. */
+export function setSignInNotice(message) { signInMessage = message; }
 export const navText = () => active() ? 'My profile' : 'Sign in';
 /** Header button: plain "Sign in", or the captain icon + "My profile" once a profile is signed in. */
 export const navHtml = () => active() ? `${CAPTAIN}<span>My profile</span>` : '<span>Sign in</span>';
@@ -373,10 +401,10 @@ function updateData(patch) {
 }
 function numberOrNull(value) { if (value === '' || value == null) return null; const n = Number(value); return Number.isFinite(n) ? n : null; }
 // Only fields the person actually edited are re-read, so converting the other (rounded) displayed values never drifts the stored ones.
-function readMeasurements(form) {
+export function readMeasurements(form, base = active().onboarding.data.measurements) {
   const dirty = new Set((form.dataset.dirty || '').split(' ').filter(Boolean));
   const get = name => numberOrNull(form.elements.namedItem(name)?.value);
-  const lengthUnit = form.dataset.lengthUnit, weightUnit = form.dataset.weightUnit, out = { ...active().onboarding.data.measurements };
+  const lengthUnit = form.dataset.lengthUnit, weightUnit = form.dataset.weightUnit, out = { ...base };
   const toCm = n => n == null ? null : Number((lengthUnit === 'in' ? n * 2.54 : n).toFixed(2));
   const toKg = n => n == null ? null : Number((weightUnit === 'lb' ? n / 2.2046226218 : n).toFixed(2));
   if (dirty.has('height')) { const r = checkHeight(form); if (!r.error && r.cm !== undefined) out.heightCm = r.cm; } // an invalid entry keeps the last valid height
@@ -406,7 +434,12 @@ function saveForm(form) {
     preferredFit: form.elements.preferredFit.value
   });
 }
-function workspacePriorities(data) {
+export function researchPriorities(data) {
+  const map = { price: 'price', weight: 'weight', weather: 'weather', breathability: 'breathability', layers: 'layers', movement: 'fit' };
+  const priorities = [...new Set(data.priorities.map(x => map[x]).filter(Boolean))];
+  return { priorities, fitFocus: priorities.includes('fit') && data.priorities.includes('movement') ? ['movement'] : [] };
+}
+export function workspacePriorities(data) {
   const map = { price: 'price', weight: 'weight', weather: 'weather', breathability: 'breathability', layers: 'layers', movement: 'fit' };
   const priorities = [...new Set(data.priorities.map(x => map[x]).filter(Boolean))];
   const focus = data.priorities.includes('movement') ? ['movement'] : [];
@@ -423,14 +456,19 @@ function finish(form) {
   if (!profile) return;
   updateOnboarding({ step: 4, complete: true });
   workspacePriorities(active().onboarding.data);
-  location.hash = '#/profile';
+  location.hash = '#/onboarding/done';
 }
 // Length and weight units move together: inches + pounds (US) or centimetres + kilograms (metric).
 function setUnitSystem(form, system) {
   const profile = active(); if (!profile) return;
   if (heightBlocked(form)) { form.elements.lengthUnit.value = form.dataset.lengthUnit; form.elements.weightUnit.value = form.dataset.weightUnit; return; }
   saveMeasurements(form);
-  const measurements = active().onboarding.data.measurements;
+  updateData({ measurements: applyUnitSystem(form, system, active().onboarding.data.measurements) });
+  const status = form.querySelector('.account-alert');
+  if (status) { status.dataset.tone = 'info'; status.textContent = system === 'metric' ? 'Units switched to centimetres and kilograms.' : 'Units switched to ft / in and pounds.'; }
+}
+/** Redraw the measurement fields from canonical values in the other unit system (nothing is saved). Returns the measurements with new units. */
+export function applyUnitSystem(form, system, measurements) {
   const lengthUnit = system === 'metric' ? 'cm' : 'in', weightUnit = system === 'metric' ? 'kg' : 'lb';
   form.elements.lengthUnit.value = lengthUnit; form.elements.weightUnit.value = weightUnit;
   form.querySelector('[data-height-field]').outerHTML = heightField(measurements.heightCm, system);
@@ -442,9 +480,7 @@ function setUnitSystem(form, system) {
     const label = form.querySelector(`[data-measure-label="${name}"]`); if (label) label.textContent = `${LABELS[name]} (${unit})`;
   }
   form.dataset.lengthUnit = lengthUnit; form.dataset.weightUnit = weightUnit;
-  updateData({ measurements: { ...measurements, lengthUnit, weightUnit, unitsChosen: true } });
-  const status = form.querySelector('.account-alert');
-  if (status) { status.dataset.tone = 'info'; status.textContent = system === 'metric' ? 'Units switched to centimetres and kilograms.' : 'Units switched to ft / in and pounds.'; }
+  return { ...measurements, lengthUnit, weightUnit, unitsChosen: true };
 }
 export function handleSubmit(event) {
   const form = event.target;
@@ -456,7 +492,7 @@ export function handleSubmit(event) {
     if (matches.length === 1) {
       signInMessage = ''; nameMatches = [];
       signIn(matches[0].id);
-      location.hash = matches[0].onboarding.complete ? '#/profile' : '#/onboarding';
+      navigate(landing(matches[0]));
       return;
     }
     nameMatches = matches.map(p => p.id);
@@ -471,7 +507,7 @@ export function handleSubmit(event) {
     if (!name || name.length > 80) return;
     const created = create(name, form.elements.importGuest?.checked === true);
     if (!created) return;
-    createMode = false;
+    createMode = false; returnTo = '';
     location.hash = '#/onboarding';
     return;
   }
@@ -523,16 +559,9 @@ export function handleClick(event) {
   else if (action === 'cancel-create') { createMode = false; renderCurrent(); document.querySelector('#signin-name')?.focus(); }
   else if (action === 'sign-in') {
     const profileId = button.dataset.profileId;
-    if (signIn(profileId)) location.hash = getProfile(profileId).onboarding.complete ? '#/profile' : '#/onboarding';
+    if (signIn(profileId)) navigate(landing(getProfile(profileId)));
   } else if (action === 'sign-out') { signOut(); location.hash = '#/'; }
-  else if (action === 'delete-prompt') { deletePrompt = true; renderCurrent(); }
-  else if (action === 'delete-cancel') { deletePrompt = false; renderCurrent(); }
-  else if (action === 'delete-confirm') {
-    const removed = deleteCurrent();
-    renderCurrent();
-    const status = document.querySelector('.device-note');
-    if (!removed && status) status.textContent = 'The profile was removed, but some saved browser data could not be cleared because storage is unavailable.';
-  } else if (action === 'onboarding-back' || action === 'onboarding-skip') {
+  else if (action === 'onboarding-back' || action === 'onboarding-skip') {
     const form = button.closest('[data-onboarding]');
     if (form && heightBlocked(form)) { event.preventDefault(); return true; }
     if (form) saveForm(form);
@@ -544,7 +573,7 @@ export function handleClick(event) {
   event.preventDefault();
   return true;
 }
-function renderCurrent() {
+export function renderCurrent() {
   const app = document.querySelector('#app');
   if (app) app.innerHTML = render(location.hash.split('?')[0].replace(/^#/, '') || '/account');
 }

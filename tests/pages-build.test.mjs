@@ -26,6 +26,6 @@ test('GitHub Pages build is self-contained, uses static catalog data, and exclud
   assert.match(workspace, /not AI/);
   assert.doesNotMatch(workspace, /Google Gemini|AI RESEARCH ASSISTANT|\/api\/research-chat/);
   assert.equal(existsSync(path.join(output, 'js', 'assistant.js')), false);
-  assert.deepEqual(allScripts.sort(), ['accounts.js', 'app.js', 'likes.js', 'research.js', 'score.js', 'workspace-state.js', 'workspace.js'].sort());
+  assert.deepEqual(allScripts.sort(), ['accounts.js', 'app.js', 'gear.js', 'likes.js', 'profile-hub.js', 'research.js', 'score.js', 'workspace-state.js', 'workspace.js'].sort());
   assert.equal(existsSync(path.join(output, '.nojekyll')), true);
 });

@@ -9,7 +9,7 @@
     "dev": "node --watch-path=server server/index.js",
     "build:pages": "node scripts/build-pages.mjs",
     "validate": "node server/validate.js",
-    "test": "node server/validate.js && node --test tests/research.test.mjs tests/accounts.test.mjs tests/assistant.test.mjs tests/pages-build.test.mjs",
+    "test": "node server/validate.js && node --test tests/research.test.mjs tests/accounts.test.mjs tests/gear.test.mjs tests/assistant.test.mjs tests/pages-build.test.mjs",
     "test:e2e": "node tests/likes.e2e.mjs",
     "test:research": "node --test tests/research.test.mjs",
     "test:assistant": "node --test tests/assistant.test.mjs"
