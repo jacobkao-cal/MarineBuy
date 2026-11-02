@@ -16,7 +16,7 @@ Sailing-jacket research and comparison site. Stack: static front end (public/) +
 - public/js/app.js: UI and routing (hash URLs keep filters and comparison). public/css/styles.css: design tokens at the top.
 - server/index.js: API. server/validate.js: data checks.
 - data/fit-evidence.json, data/size-charts.json: fit evidence and official size charts (server-side context for the AI assistant).
-- server/assistant.js: Gemini endpoint (POST /api/research-chat), SYSTEM_INSTRUCTION, allowlist validation. public/js/assistant.js: the panel. GEMINI_API_KEY stays server-side in .env (never commit, never log, never send to the browser). Keep model output plain text; links only from stored records; only allowlisted UI actions.
+- server/assistant.js: retained Gemini endpoint (POST /api/research-chat), SYSTEM_INSTRUCTION, allowlist validation. The public frontend currently uses rules-based guidance only; do not reconnect Gemini without an explicit request and a separately hosted backend. GEMINI_API_KEY stays server-side in .env (never commit, never log, never send to the browser). Keep model output plain text; links only from stored records; only allowlisted UI actions.
 
 ## Workflow
 1. Edit data or code. 2. `npm run validate`. 3. `npm run dev`, open http://localhost:3000 and check desktop + a 375px-wide window. 4. Report what was and was not verified.

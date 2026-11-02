@@ -72,7 +72,7 @@ charts.forEach((c) => {
   if (!Array.isArray(c.sizes) || !c.sizes.length) errs.push(`Size chart has no sizes: ${k}`);
 });
 const noChart = products.filter((p) => !charts.some((c) => c.p === p.id)).map((p) => p.id);
-if (noChart.length) warns.push(`No official size chart recorded for: ${noChart.join(', ')} (the assistant will say fit cannot be checked against a chart)`);
+if (noChart.length) warns.push(`No official size chart recorded for: ${noChart.join(', ')} (fit guidance will say fit cannot be checked against a chart)`);
 console.log(`${products.length} products, ${offers.length} offers, ${sources.length} sources, ${images.length} images, ${videos.length} videos, ${fit.length} fit evidence, ${charts.length} size charts`);
 warns.forEach((w) => console.log('WARN ', w));
 errs.forEach((e) => console.log('ERROR', e));

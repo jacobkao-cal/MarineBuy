@@ -20,6 +20,7 @@ export function catalog() {
 
 const app = express();
 app.get('/api/health', (_q, r) => r.json({ ok: true }));
+app.get('/data/catalog.json', (_q, r) => { r.set('Cache-Control', 'no-store'); r.json(catalog()); });
 app.get('/api/catalog', (_q, r) => { r.set('Cache-Control', 'no-store'); r.json(catalog()); });
 app.get('/api/products', (_q, r) => { const c = catalog(); r.json(c.products.map((p) => ({ ...p, score: c.scores[p.id] }))); });
 app.get('/api/products/:id', (q, r) => {

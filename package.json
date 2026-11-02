@@ -7,12 +7,12 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "node --watch-path=server server/index.js",
+    "build:pages": "node scripts/build-pages.mjs",
     "validate": "node server/validate.js",
-    "test": "node server/validate.js && node --test tests/research.test.mjs tests/assistant.test.mjs",
+    "test": "node server/validate.js && node --test tests/research.test.mjs tests/assistant.test.mjs tests/pages-build.test.mjs",
     "test:e2e": "node tests/likes.e2e.mjs",
     "test:research": "node --test tests/research.test.mjs",
-    "test:assistant": "node --test tests/assistant.test.mjs",
-    "test:assistant-e2e": "node tests/assistant.e2e.mjs"
+    "test:assistant": "node --test tests/assistant.test.mjs"
   },
   "engines": {
     "node": ">=20.12"

@@ -1,12 +1,12 @@
-// Marine Buy front end. Data comes from /api/catalog (see server/index.js); scoring lives in score.js.
+// Marine Buy front end. Catalog data is available as static JSON for GitHub Pages and the local server.
 import { computeScore } from './score.js';
 import * as Likes from './likes.js';
 import * as Workspace from './workspace.js';
 let PRODUCTS=[],OFFERS=[],IMAGES=[],SOURCES=[],VIDEOS=[],WP={},TONE={},SPECS=[],AUTH={},RIGHTS='',CHECKED='';
 const score=id=>computeScore(id,{SOURCES,WP,TONE});
 async function init(){let c;
-  try{c=await (await fetch('/api/catalog')).json()}
-  catch(e){document.querySelector('#app').innerHTML='<div class="empty">Could not load data from /api/catalog. Is the server running (npm run dev)?</div>';return}
+  try{const r=await fetch(new URL('data/catalog.json',document.baseURI));if(!r.ok)throw new Error(`Catalog request failed (${r.status})`);c=await r.json()}
+  catch(e){document.querySelector('#app').innerHTML='<div class="empty">Could not load jacket research. Try refreshing the page.</div>';return}
   ({products:PRODUCTS,offers:OFFERS,images:IMAGES,sources:SOURCES,videos:VIDEOS}=c);({WP,TONE}=c.scoring);({SPECS,AUTH,RIGHTS,CHECKED}=c.meta);startLikes();render();
 }
 // ---- Likes (private, this browser only; state lives in likes.js) ----
@@ -136,7 +136,7 @@ function renderCompare(s){const L=s.cmp.map(P),back=`<p><a href="#/likes">← My
  ${row("Photo",p=>`<div style="width:120px">${photo(p)}</div>`)}${row("Intended use",p=>esc(p.tier)+"<br><span class='mu'>"+esc(p.use)+"</span>")}${row("Marine Buy Score",p=>scoreChip(p.id))}${row("Price",p=>priceHtml(p.id))}${SPECS.map(([k,l])=>row(l,p=>esc(p.spec[k]||"Not provided"))).join("")}${row("Research sources",p=>{const n=SOURCES.filter(x=>x.p===p.id).length;return`${n} source${n==1?"":"s"} · <a href="${url(s,"/p/"+p.id)}">details</a>`})}</table></div>
  <p><button class="btn" id="cp">Copy shareable link</button> <span id="cpm" class="mu" role="status"></span></p>`;
  $("#cp").onclick=()=>{navigator.clipboard?.writeText(location.href).then(()=>$("#cpm").textContent="Link copied.",()=>$("#cpm").textContent="Copy failed; copy the address bar URL.")}}
-function renderAbout(){$("#app").innerHTML=`<h1>How these jackets were selected</h1><p>The ${PRODUCTS.length} products are the owner's own shortlist for this prototype. This is not a market survey and does not cover all brands or models.</p><ul><li>Prices appear only where they were read from the retailer page on the stated date; otherwise “Check price at retailer”.</li><li>Missing specifications read “Not provided”. Gill and Musto figures are the brands' own claims on different scales and are not directly comparable.</li><li>The Marine Buy Score blends a spec score and independent feedback using the published formula on each product page. Brand-hosted star ratings are shown separately and excluded from the score. Jackets without enough independent feedback stay unrated.</li><li>Product photos were supplied by the owner from retailer pages; rights are unconfirmed for all of them.</li><li>Likes are private: they are saved only in this browser (localStorage), never sent to our server, and never counted publicly. Clearing your browser data removes them.</li></ul>`}
+function renderAbout(){$("#app").innerHTML=`<h1>How these jackets were selected</h1><p>The ${PRODUCTS.length} products are the owner's own shortlist for this prototype. This is not a market survey and does not cover all brands or models.</p><ul><li>Prices appear only where they were read from the retailer page on the stated date; otherwise “Check price at retailer”.</li><li>Missing specifications read “Not provided”. Gill and Musto figures are the brands' own claims on different scales and are not directly comparable.</li><li>The Marine Buy Score blends a spec score and independent feedback using the published formula on each product page. Brand-hosted star ratings are shown separately and excluded from the score. Jackets without enough independent feedback stay unrated.</li><li>Product photos are authorized by the site owner for demo purposes.</li><li>Likes are private: they are saved only in this browser (localStorage), never sent to our server, and never counted publicly. Clearing your browser data removes them.</li></ul>`}
 // Compact Likes tray: hidden on My Likes and Compare, which already show the same controls.
 function tray(s){const n=Likes.count(),sel=Likes.selected(),m=sel.length;
  $("#tray").innerHTML=n&&!["/likes","/compare"].includes(s.path)?`<div class="tray" role="region" aria-label="My Likes summary">${HEART}<span><strong>${n} liked</strong>${m?` · ${m} selected for comparison`:""}</span><a class="btn" href="#/likes">Open My Likes</a>${m>=2?`<a class="btn p" href="${url({...s,cmp:sel},"/compare")}">Compare selected (${m})</a>`:""}</div>`:""}
