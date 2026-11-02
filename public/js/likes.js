@@ -1,8 +1,9 @@
-// Private Likes: the jackets a visitor saved, plus the 2–4 of them picked for side-by-side comparison.
-// Stored only in this browser's localStorage under KEY. Nothing is sent to the server; no account needed.
-// Shape: {"v":1,"ids":["gill-os2",...],"sel":["gill-os2",...]}  (sel is always a subset of ids, max 4)
+// Private Likes: a visitor's saved jackets and 2–4 comparison picks.
+// Stored in this browser under KEY (guest) or a profile-scoped key. Nothing is sent to the server.
+// Shape: {"v":1,"ids":["gill-os2",...],"sel":["gill-os2",...]} (sel is a subset of ids, max 4)
 export const KEY = 'marinebuy:likes', MAX_CMP = 4, MAX_LIKES = 200;
 let ids = [], sel = [], selectionInitialized = false, valid = () => true;
+let activeKey = KEY;
 const subs = new Set();
 const store = () => { try { return globalThis.localStorage ?? null; } catch { return null; } };
 const uniq = (a, ok) => [...new Set((Array.isArray(a) ? a : []).filter((x) => typeof x === 'string' && ok(x)))];
@@ -13,19 +14,29 @@ function apply(d) {
 }
 function read() {
   let raw = null;
-  try { raw = store()?.getItem(KEY) ?? null; } catch { /* storage blocked */ }
+  try { raw = store()?.getItem(activeKey) ?? null; } catch { /* storage blocked */ }
   if (raw == null) return { had: false, d: null };
   try { return { had: true, d: JSON.parse(raw) }; } catch { return { had: true, d: null }; }
 }
 function save() {
-  try { store()?.setItem(KEY, JSON.stringify({ v: 1, ids, sel, selectionInitialized })); } catch { /* full or blocked: keep in memory */ }
+  try { store()?.setItem(activeKey, JSON.stringify({ v: 1, ids, sel, selectionInitialized })); } catch { /* full or blocked: keep in memory */ }
   subs.forEach((f) => f());
 }
 
 /** True when localStorage can actually be written (false in some private windows). */
 export function available() {
-  try { const s = store(); s.setItem(KEY + ':t', '1'); s.removeItem(KEY + ':t'); return true; } catch { return false; }
+  try { const s = store(); if (!s) return false; s.setItem(activeKey + ':t', '1'); s.removeItem(activeKey + ':t'); return true; } catch { return false; }
 }
+export const storageKey = () => activeKey;
+/** Switch between the anonymous visitor's state and a profile's isolated state. */
+export function useScope(profileId = null) {
+  activeKey = profileId ? `${KEY}:${profileId}` : KEY;
+  const { d } = read();
+  apply(d);
+  subs.forEach((f) => f());
+}
+export const exportState = () => ({ v: 1, ids: [...ids], sel: [...sel], selectionInitialized });
+export function importState(data) { apply(data); save(); }
 /** Load saved state. isValid(id) rejects products no longer in the catalog. Returns {fresh, dropped}. */
 export function load(isValid) {
   valid = isValid || (() => true);
@@ -33,7 +44,7 @@ export function load(isValid) {
   const before = new Set(Array.isArray(d?.ids) ? d.ids.filter((x) => typeof x === 'string') : []).size;
   apply(d);
   const dropped = Math.max(0, before - ids.length);
-  if (had && (dropped || !d || d.v !== 1)) try { store()?.setItem(KEY, JSON.stringify({ v: 1, ids, sel, selectionInitialized })); } catch { /* ignore */ }
+  if (had && (dropped || !d || d.v !== 1)) try { store()?.setItem(activeKey, JSON.stringify({ v: 1, ids, sel, selectionInitialized })); } catch { /* ignore */ }
   return { fresh: !had, dropped };
 }
 /** Re-read after another tab changed storage. */

@@ -2,13 +2,18 @@
 import { computeScore } from './score.js';
 import * as Likes from './likes.js';
 import * as Workspace from './workspace.js';
+import * as Accounts from './accounts.js';
 let PRODUCTS=[],OFFERS=[],IMAGES=[],SOURCES=[],VIDEOS=[],WP={},TONE={},SPECS=[],AUTH={},RIGHTS='',CHECKED='';
 const score=id=>computeScore(id,{SOURCES,WP,TONE});
 async function init(){let c;
   try{const r=await fetch(new URL('data/catalog.json',document.baseURI));if(!r.ok)throw new Error(`Catalog request failed (${r.status})`);c=await r.json()}
   catch(e){document.querySelector('#app').innerHTML='<div class="empty">Could not load jacket research. Try refreshing the page.</div>';return}
-  ({products:PRODUCTS,offers:OFFERS,images:IMAGES,sources:SOURCES,videos:VIDEOS}=c);({WP,TONE}=c.scoring);({SPECS,AUTH,RIGHTS,CHECKED}=c.meta);startLikes();render();
+  ({products:PRODUCTS,offers:OFFERS,images:IMAGES,sources:SOURCES,videos:VIDEOS}=c);({WP,TONE}=c.scoring);({SPECS,AUTH,RIGHTS,CHECKED}=c.meta);
+  const profileId=Accounts.current()?.id||null;Likes.useScope(profileId);Workspace.useProfileScope(profileId,id=>!!P(id));startLikes();render();
 }
+Accounts.configure({onScopeChange:profileId=>{
+  Likes.useScope(profileId);Likes.load(id=>!!P(id));Workspace.useProfileScope(profileId,id=>!!P(id));syncCount();$("#nav-account").textContent=Accounts.navText();
+}});
 // ---- Likes (private, this browser only; state lives in likes.js) ----
 const HEART='<svg class="hrt" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M12 20.5s-7.5-4.6-9.4-9.1C1.3 8.2 3.2 4.5 6.8 4.5c2.1 0 3.6 1.2 5.2 3.1 1.6-1.9 3.1-3.1 5.2-3.1 3.6 0 5.5 3.7 4.2 6.9-1.9 4.5-9.4 9.1-9.4 9.1z"/></svg>';
 let confirmClear=false,pendingFocus=null;
@@ -18,7 +23,7 @@ function startLikes(){const r=Likes.load(id=>!!P(id)),s=parse(),msgs=[];let adde
  // One-time migration: the old Compare buttons kept the selection only in the URL (?cmp=). Save it as Likes on the first visit after this update.
  if(r.fresh&&Likes.available()){if(s.cmp.length){added=Likes.importIds(s.cmp,true);if(added.length)msgs.push(`Your ${added.length} compared jacket${added.length==1?" was":"s were"} saved to My Likes and selected for comparison.`)}else Likes.clearAll()}
  if(s.cmp.length&&s.path!=="/compare")history.replaceState(null,"",url(s));
- notice(msgs,added);Likes.onChange(syncLikes);addEventListener("storage",e=>{if(e.key===Likes.KEY||e.key===null)Likes.reload()});syncCount()}
+ notice(msgs,added);Likes.onChange(syncLikes);addEventListener("storage",e=>{if(e.key===Likes.storageKey()||e.key===null)Likes.reload()});syncCount()}
 function notice(msgs,added){const n=$("#notice");if(!msgs.length){n.innerHTML="";return}
  n.innerHTML=`<div class="notice"><span>${msgs.map(esc).join(" ")}</span> <a href="#/likes">Open My Likes</a>${added.length?' <button type="button" class="btn" id="nt-undo">Undo</button>':""} <button type="button" class="btn" id="nt-x">Dismiss</button></div>`;
  live(msgs.join(" "));
@@ -139,12 +144,14 @@ function renderCompare(s){const L=s.cmp.map(P),back=`<p><a href="#/likes">← My
 function renderAbout(){$("#app").innerHTML=`<h1>How these jackets were selected</h1><p>The ${PRODUCTS.length} products are the owner's own shortlist for this prototype. This is not a market survey and does not cover all brands or models.</p><ul><li>Prices appear only where they were read from the retailer page on the stated date; otherwise “Check price at retailer”.</li><li>Missing specifications read “Not provided”. Gill and Musto figures are the brands' own claims on different scales and are not directly comparable.</li><li>The Marine Buy Score blends a spec score and independent feedback using the published formula on each product page. Brand-hosted star ratings are shown separately and excluded from the score. Jackets without enough independent feedback stay unrated.</li><li>Product photos are authorized by the site owner for demo purposes.</li><li>Likes are private: they are saved only in this browser (localStorage), never sent to our server, and never counted publicly. Clearing your browser data removes them.</li></ul>`}
 // Compact Likes tray: hidden on My Likes and Compare, which already show the same controls.
 function tray(s){const n=Likes.count(),sel=Likes.selected(),m=sel.length;
- $("#tray").innerHTML=n&&!["/likes","/compare"].includes(s.path)?`<div class="tray" role="region" aria-label="My Likes summary">${HEART}<span><strong>${n} liked</strong>${m?` · ${m} selected for comparison`:""}</span><a class="btn" href="#/likes">Open My Likes</a>${m>=2?`<a class="btn p" href="${url({...s,cmp:sel},"/compare")}">Compare selected (${m})</a>`:""}</div>`:""}
+ $("#tray").innerHTML=n&&!["/likes","/compare","/account","/profile","/onboarding"].includes(s.path)?`<div class="tray" role="region" aria-label="My Likes summary">${HEART}<span><strong>${n} liked</strong>${m?` · ${m} selected for comparison`:""}</span><a class="btn" href="#/likes">Open My Likes</a>${m>=2?`<a class="btn p" href="${url({...s,cmp:sel},"/compare")}">Compare selected (${m})</a>`:""}</div>`:""}
 function render(){const s=parse();confirmClear=false;$("#app").classList.remove("workspace-main");if(s.path==="/likes")Likes.ensureSelection();document.querySelector("#q").value=s.q;
- if(s.path==="/compare")renderCompare(s);else if(s.path==="/likes")renderLikes(s);else if(s.path.startsWith("/p/"))renderProduct(s,s.path.slice(3));else if(s.path==="/about")renderAbout();else renderList(s);
+ if(["/account","/profile","/onboarding"].includes(s.path))$("#app").innerHTML=Accounts.render(s.path);else if(s.path==="/compare")renderCompare(s);else if(s.path==="/likes")renderLikes(s);else if(s.path.startsWith("/p/"))renderProduct(s,s.path.slice(3));else if(s.path==="/about")renderAbout();else renderList(s);
  s.path==="/likes"?$("#nav-likes").setAttribute("aria-current","page"):$("#nav-likes").removeAttribute("aria-current");
+ $("#nav-account").textContent=Accounts.navText();["/account","/profile","/onboarding"].includes(s.path)?$("#nav-account").setAttribute("aria-current","page"):$("#nav-account").removeAttribute("aria-current");
  tray(s);if(pendingFocus){const f=$(pendingFocus)||$("h1");pendingFocus=null;f?.focus()}}
 document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;const d=t.dataset;
+ if(Accounts.handleClick(e))return;
  if(d.gal){const g=t.closest(".gal");return galGo(g,galIdx(g.querySelector(".gal-track"))+ +d.gal)}
  if(d.galGo)return galGo(t.closest(".gal"),+d.galGo);
  if("lbOpen" in d){const g=t.closest(".gal");return openLightbox(g,galIdx(g.querySelector(".gal-track")),t)}
@@ -160,8 +167,10 @@ document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)r
  else if(t.id==="rs"){confirmClear=true;rerenderLikes("#rs-no")}
  else if(t.id==="rs-no"){confirmClear=false;rerenderLikes("#rs")}
  else if(t.id==="rs-yes"){confirmClear=false;pendingFocus="#lk-h";Likes.clearAll();live("My Likes cleared.")}});
-document.addEventListener("change",e=>{const c=e.target;if(!c.dataset?.sel)return;
+document.addEventListener("change",e=>{Accounts.handleChange(e);const c=e.target;if(!c.dataset?.sel)return;
  if(!Likes.setSelected(c.dataset.sel,c.checked)){c.checked=false;live(`You can compare up to ${Likes.MAX_CMP} jackets. Unselect one first.`)}});
+document.addEventListener("submit",Accounts.handleSubmit);
+document.addEventListener("input",Accounts.handleInput);
 $("#sf").addEventListener("submit",e=>{e.preventDefault();go({q:$("#q").value.trim()},"/")});
 Workspace.start();addEventListener("hashchange",render);init();
 window.rvf=rvf;

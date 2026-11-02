@@ -31,12 +31,13 @@ Shortcuts: **Ctrl+Shift+B** (Cmd+Shift+B on Mac) runs the dev server. **Terminal
 | Priority definitions and recommendation rules | `public/js/research.js` |
 | Notes, priorities and view settings | `public/js/workspace-state.js` |
 | Likes storage (localStorage, browser only) | `public/js/likes.js` |
+| Device-local profile and onboarding screens | `public/js/accounts.js` |
 | Fit evidence (one fit point per record, linked to its source) | `data/fit-evidence.json` |
 | Official size charts (none recorded yet) | `data/size-charts.json` |
 | Optional Gemini API code (not used by the static preview) | `server/assistant.js` |
 | GitHub Pages static-site builder | `scripts/build-pages.mjs` |
 | Secrets template (copy to `.env`) | `.env.example` |
-| Browser test for Likes/compare | `tests/likes.e2e.mjs` |
+| Browser tests for Likes, comparison, and local profiles/onboarding | `tests/likes.e2e.mjs` |
 | Tests for the retained server-side Gemini endpoint (mocked) | `tests/assistant.test.mjs` |
 | Colours, spacing, layout | `public/css/styles.css` |
 | API and server | `server/index.js` |
@@ -54,9 +55,11 @@ The local server re-reads data files on each request. The GitHub Pages build bun
 **Add a YouTube review:** only after opening the video and confirming it covers that exact model. Entry fields: `id, p, title, channel, url, videoId, rel, checked`.
 **Change colours:** edit the `:root` variables at the top of `styles.css`.
 
-**Likes and comparison:** visitors tap **Like** (heart) on any jacket; the header shows **My Likes (N)**. Likes are private: stored only in the browser's localStorage key `marinebuy:likes` (`{v, ids, sel}`), never sent to the server, no account. Up to 200 jackets can be liked; My Likes opens a three-panel research workspace with two jackets selected by default. Use the checkboxes to compare up to four; removing a comparison keeps the Like. Select priority bubbles to bring relevant rows first and see evidence-based explanations. Notes, priorities, visible rows, differences-only mode, and research view are stored separately under `marinebuy:workspace`. A deliberately cleared selection stays cleared. Notes never go in shared URLs. Only the comparison page puts product IDs in the URL (`#/compare?cmp=a,b`) so it can be shared. Removing a jacket from a comparison keeps it in Likes. Old `?cmp=` links are migrated into Likes once, on the first visit after the update (with an Undo).
+**Local profiles, Likes, and comparison:** guest browsing is always available. Visitors can create a passwordless local profile using a display name, then return by choosing that profile on the same browser. This is not a secure identity or a cross-device account. The profile stores a five-step sailing and fit questionnaire, with optional body measurements, and keeps each profile's Likes and research notes separate. On profile creation, an explicit unchecked option can copy the current guest Likes and research notes into the profile; nothing is moved or removed from guest browsing. Sign out preserves the local profile; deleting one requires confirmation and clears that profile's data. Profiles, measurements, Likes, and notes are stored in browser localStorage and are never sent to the server.
 
-**Checks:** `npm test` validates curated data, checks research/storage and the server-side Gemini endpoint using a mocked model, and builds/verifies the Pages artifact. With the local server running, `npm run test:e2e` drives headless Google Chrome through Likes, persistence, My Likes, comparison, keyboard, reduced motion and the 375px layout (no extra packages; set `CHROME=/path/to/chrome` if Chrome is elsewhere).
+Visitors tap **Like** (heart) on any jacket; the header shows **My Likes (N)**. Guest Likes use `marinebuy:likes`; profile-specific Likes and workspace research use keys suffixed with that profile's local ID. Up to 200 jackets can be liked; My Likes opens a three-panel research workspace with two jackets selected by default. Use the checkboxes to compare up to four; removing a comparison keeps the Like. Select priority bubbles to bring relevant rows first and see evidence-based explanations. Notes, priorities, visible rows, differences-only mode, and research view are stored separately in `marinebuy:workspace` (guest) or a profile-scoped workspace key. A deliberately cleared selection stays cleared. Notes and personal profile data never go in shared URLs. Only the comparison page puts product IDs in the URL (`#/compare?cmp=a,b`) so it can be shared. Old `?cmp=` links are migrated into Likes once, on the first visit after the update (with an Undo).
+
+**Checks:** `npm test` validates curated data, checks research/storage, local profile storage, and the server-side Gemini endpoint using a mocked model, and builds/verifies the Pages artifact. With the local server running, `npm run test:e2e` drives headless Google Chrome through Likes, comparison, local profile creation/sign-in/onboarding/deletion, unit conversion, keyboard, reduced motion and the 375px layout (no extra packages; set `CHROME=/path/to/chrome` if Chrome is elsewhere).
 
 API (local server): `/data/catalog.json`, `/api/catalog`, `/api/products`, `/api/products/gill-os2`, `/api/health`. The static Pages preview does not use Gemini endpoints.
 

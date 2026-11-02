@@ -1,5 +1,6 @@
 import { PRIORITIES, FIT_FOCUS, ROWS } from './research.js';
 export const KEY = 'marinebuy:workspace';
+let activeKey = KEY;
 const defaults = () => ({ priorities: [], fitFocus: [], notes: {}, rows: ROWS.filter(r => !r.detail).map(r => r.id), differences: false, tab: 'overview', optionsOpen: true });
 let saved = true;
 export const persisted = () => saved;
@@ -7,7 +8,7 @@ let state = defaults(), valid = () => true;
 export const get = () => structuredClone(state);
 export function load(isValid = valid) {
   valid = isValid;
-  let d; try { d = JSON.parse(globalThis.localStorage?.getItem(KEY) || 'null'); } catch { /* blocked or malformed */ }
+  let d; try { d = JSON.parse(globalThis.localStorage?.getItem(activeKey) || 'null'); } catch { /* blocked or malformed */ }
   state = defaults(); saved = true;
   if (!d || typeof d !== 'object') return;
   // v1 had a "movement" priority; it now lives under "Help with fit" → "Easier movement".
@@ -24,6 +25,11 @@ export function load(isValid = valid) {
 }
 export function set(patch) {
   state = { ...state, ...patch };
-  try { if (!globalThis.localStorage) throw new Error('Storage unavailable'); globalThis.localStorage.setItem(KEY, JSON.stringify({ v: 1, ...state })); saved = true; } catch { saved = false; /* retain in memory */ }
+  try { if (!globalThis.localStorage) throw new Error('Storage unavailable'); globalThis.localStorage.setItem(activeKey, JSON.stringify({ v: 1, ...state })); saved = true; } catch { saved = false; /* retain in memory */ }
 }
 export function note(id, text) { if (valid(id)) set({ notes: { ...state.notes, [id]: text.slice(0, 2000) } }); }
+export const storageKey = () => activeKey;
+export function useScope(profileId = null, isValid = valid) {
+  activeKey = profileId ? `${KEY}:${profileId}` : KEY;
+  load(isValid);
+}

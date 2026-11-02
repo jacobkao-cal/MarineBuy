@@ -127,8 +127,12 @@ export function start() {
   });
   document.addEventListener('input', e => { if (e.target.dataset.note) { State.note(e.target.dataset.note, e.target.value); $('.saved-locally').textContent = Likes.available() && State.persisted() ? '✓ Research saved on this device' : 'Storage unavailable · changes last for this visit'; } });
   addEventListener('storage', e => {
-    if (e.key !== State.KEY && e.key !== null) return;
+    if (e.key !== State.storageKey() && e.key !== null) return;
     State.load();
     if ($('#research-workspace')) refresh();
   });
+}
+export function useProfileScope(profileId, isValid) {
+  State.useScope(profileId, isValid);
+  initialized = true;
 }
